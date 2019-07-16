@@ -93,7 +93,7 @@ void debug() {
 static unsigned char ft;
 static unsigned char ct;
 
-void (*CB[0x100])() = {};
+// void (*CB[0x100])() = {};
 
 unsigned char ROM[0xFF];
 
@@ -357,15 +357,15 @@ static void sbc_A_d8() {sub=A-F_C-_d8;SUB_FLAG();A=(unsigned char)sub;ft = 8;}
     F |= 1<<F_H_BIT;\
 } while(0)
 
-static void and_A_A() {AND_FLAG((A&=A));ft = 4;}
-static void and_A_B() {AND_FLAG((A&=B));ft = 4;}
-static void and_A_C() {AND_FLAG((A&=C));ft = 4;}
-static void and_A_D() {AND_FLAG((A&=D));ft = 4;}
-static void and_A_E() {AND_FLAG((A&=E));ft = 4;}
-static void and_A_H() {AND_FLAG((A&=H));ft = 4;}
-static void and_A_L() {AND_FLAG((A&=L));ft = 4;}
-static void and_A_HL() {AND_FLAG((A&=ROM[HL]));ft = 8;}
-static void and_A_d8() {AND_FLAG((A&=_d8));ft = 8;}
+static void and_A() {AND_FLAG((A&=A));ft = 4;}
+static void and_B() {AND_FLAG((A&=B));ft = 4;}
+static void and_C() {AND_FLAG((A&=C));ft = 4;}
+static void and_D() {AND_FLAG((A&=D));ft = 4;}
+static void and_E() {AND_FLAG((A&=E));ft = 4;}
+static void and_H() {AND_FLAG((A&=H));ft = 4;}
+static void and_L() {AND_FLAG((A&=L));ft = 4;}
+static void and_HL() {AND_FLAG((A&=ROM[HL]));ft = 8;}
+static void and_d8() {AND_FLAG((A&=_d8));ft = 8;}
 
 // OR n
 // Logical OR n with register A, result in A; (n = A,B,C,D,E,H,L,(HL),#)
@@ -381,27 +381,27 @@ static void and_A_d8() {AND_FLAG((A&=_d8));ft = 8;}
     Flag_zero(n);\
 } while(0)
 
-static void or_A_A() {OR_FLAG((A|=A));ft = 4;}
-static void or_A_B() {OR_FLAG((A|=B));ft = 4;}
-static void or_A_C() {OR_FLAG((A|=C));ft = 4;}
-static void or_A_D() {OR_FLAG((A|=D));ft = 4;}
-static void or_A_E() {OR_FLAG((A|=E));ft = 4;}
-static void or_A_H() {OR_FLAG((A|=H));ft = 4;}
-static void or_A_L() {OR_FLAG((A|=L));ft = 4;}
-static void or_A_HL() {OR_FLAG((A|=ROM[HL]));ft = 8;}
-static void or_A_d8() {OR_FLAG((A|=_d8));ft = 8;}
+static void or_A() {OR_FLAG((A|=A));ft = 4;}
+static void or_B() {OR_FLAG((A|=B));ft = 4;}
+static void or_C() {OR_FLAG((A|=C));ft = 4;}
+static void or_D() {OR_FLAG((A|=D));ft = 4;}
+static void or_E() {OR_FLAG((A|=E));ft = 4;}
+static void or_H() {OR_FLAG((A|=H));ft = 4;}
+static void or_L() {OR_FLAG((A|=L));ft = 4;}
+static void or_HL() {OR_FLAG((A|=ROM[HL]));ft = 8;}
+static void or_d8() {OR_FLAG((A|=_d8));ft = 8;}
 
 // XOR n
 // Logical exclusive OR n with register A, result in A; (n = A,B,C,D,E,H,L,(HL),#)
-static void xor_A_A() {OR_FLAG((A^=A));ft = 4;}
-static void xor_A_B() {OR_FLAG((A^=B));ft = 4;}
-static void xor_A_C() {OR_FLAG((A^=C));ft = 4;}
-static void xor_A_D() {OR_FLAG((A^=D));ft = 4;}
-static void xor_A_E() {OR_FLAG((A^=E));ft = 4;}
-static void xor_A_H() {OR_FLAG((A^=H));ft = 4;}
-static void xor_A_L() {OR_FLAG((A^=L));ft = 4;}
-static void xor_A_HL() {OR_FLAG((A^=ROM[HL]));ft = 8;}
-static void xor_A_d8() {OR_FLAG((A^=_d8));ft = 8;}
+static void xor_A() {OR_FLAG((A^=A));ft = 4;}
+static void xor_B() {OR_FLAG((A^=B));ft = 4;}
+static void xor_C() {OR_FLAG((A^=C));ft = 4;}
+static void xor_D() {OR_FLAG((A^=D));ft = 4;}
+static void xor_E() {OR_FLAG((A^=E));ft = 4;}
+static void xor_H() {OR_FLAG((A^=H));ft = 4;}
+static void xor_L() {OR_FLAG((A^=L));ft = 4;}
+static void xor_HL() {OR_FLAG((A^=ROM[HL]));ft = 8;}
+static void xor_d8() {OR_FLAG((A^=_d8));ft = 8;}
 
 // CP n
 // Compare A with n. This is basically an A - n subtraction instruction but the results are thrown away.
@@ -411,15 +411,15 @@ static void xor_A_d8() {OR_FLAG((A^=_d8));ft = 8;}
 //  N - Set.
 //  H - Set if no borrow from bit 4.
 //  C - Set for no borrow. (Set if A < n.)
-static void cp_A_A() {sub=A-A;SUB_FLAG();ft = 4;}
-static void cp_A_B() {sub=A-B;SUB_FLAG();ft = 4;}
-static void cp_A_C() {sub=A-C;SUB_FLAG();ft = 4;}
-static void cp_A_D() {sub=A-D;SUB_FLAG();ft = 4;}
-static void cp_A_E() {sub=A-E;SUB_FLAG();ft = 4;}
-static void cp_A_H() {sub=A-H;SUB_FLAG();ft = 4;}
-static void cp_A_L() {sub=A-L;SUB_FLAG();ft = 4;}
-static void cp_A_HL() {sub=A-ROM[HL];SUB_FLAG();ft = 8;}
-static void cp_A_d8() {sub=A-_d8;SUB_FLAG();ft = 8;}
+static void cp_A() {sub=A-A;SUB_FLAG();ft = 4;}
+static void cp_B() {sub=A-B;SUB_FLAG();ft = 4;}
+static void cp_C() {sub=A-C;SUB_FLAG();ft = 4;}
+static void cp_D() {sub=A-D;SUB_FLAG();ft = 4;}
+static void cp_E() {sub=A-E;SUB_FLAG();ft = 4;}
+static void cp_H() {sub=A-H;SUB_FLAG();ft = 4;}
+static void cp_L() {sub=A-L;SUB_FLAG();ft = 4;}
+static void cp_HL() {sub=A-ROM[HL];SUB_FLAG();ft = 8;}
+static void cp_d8() {sub=A-_d8;SUB_FLAG();ft = 8;}
 
 // INC n
 // Increment register n; (n = A,B,C,D,E,H,L,(HL))
@@ -1144,7 +1144,7 @@ static void reti() {
     ret();
 }
 
-
+static void CB() {}
 
 
 void (*op_map[])() = {
@@ -1167,8 +1167,19 @@ void (*op_map[])() = {
     // 8x
     add_A_B, add_A_C, add_A_D, add_A_E, add_A_H, add_A_L, adc_A_HL, add_A_A, adc_A_B, adc_A_C, adc_A_D, adc_A_E, adc_A_H, adc_A_L, adc_A_HL, adc_A_A,
     // 9x
-    sub_B,
-
+    sub_B, sub_C, sub_D, sub_E, sub_H, sub_L, sub_HL, sub_A, sbc_A_B, sbc_A_C, sbc_A_D, sbc_A_E, sbc_A_H, sbc_A_L, sbc_A_HL, sbc_A_A,
+    // Ax
+    and_B, and_C, and_D, and_E, and_H, and_L, and_HL, and_A, xor_B, xor_C, xor_D, xor_E, xor_H, xor_L, xor_HL, xor_A,
+    // Bx
+    or_B, or_C, or_D, or_E, or_H, or_L, or_HL, or_A, cp_B, cp_C, cp_D, cp_E, cp_H, cp_L, cp_HL, cp_A,
+    // Cx
+    ret_NZ, pop_BC, jp_NZ, jp_d16, call_NZ, push_BC, add_A_d8, rst_00h, ret_Z, ret, jp_Z, CB, call_Z, call_nn, adc_A_d8, rst_08h,
+    // Dx
+    ret_NC, pop_DE, jp_NC, XX, call_NC, push_DE, sub_d8, rst_10h, ret_C, reti, jp_C, XX, call_C, XX, sbc_A_d8, rst_18h,
+    // Ex
+    ld_a8_A, pop_HL, ld_rC_A, XX, XX, push_HL, and_d8, rst_20h, add_SP_d8, jp_HL, ld_a16_A, XX, XX, XX, xor_d8, rst_28h,
+    // Fx
+    ld_A_d8, pop_AF, ld_A_rC, di, XX, push_AF, or_d8, rst_30h, ldhl_SP_d8, ld_SP_HL, ld_A_a16, ei, XX, XX, cp_d8, rst_38h
 
 };
 
