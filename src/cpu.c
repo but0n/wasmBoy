@@ -2,10 +2,6 @@
 #include <stdio.h>
 #define WASM_EXPORT __attribute__((visibility("default")))
 
-static void sub_A_B();
-static void add_A_B();
-static void rlca();
-
 #define REG_AMOUNT 6
 
 static unsigned short cache[REG_AMOUNT] = {};
@@ -13,12 +9,12 @@ static unsigned short cache[REG_AMOUNT] = {};
 // 1 BYTE REG
 #define ADDR_F  0
 #define ADDR_A  1
-#define ADDR_B  3
 #define ADDR_C  2
-#define ADDR_D  5
+#define ADDR_B  3
 #define ADDR_E  4
-#define ADDR_H  7
+#define ADDR_D  5
 #define ADDR_L  6
+#define ADDR_H  7
 
 // 2 BYTE REG
 #define ADDR_BC 1
@@ -90,24 +86,6 @@ void debug() {
     printf("| S - P |\t08:\t%04X\n", cache[4]);
     printf("| P - C |\t0A:\t%04X\n", cache[5]);
     printf("\n");
-}
-
-int main()
-{
-    F = 0xF;
-    A = 0x94;
-    B = 10;
-    C = 0xC;
-    D = 0xD;
-    E = 0xE;
-    H = 0x1;
-    L = 0x2;
-    SP = 0x0F;
-    PC = 0xAAF0;
-    debug();
-    rlca();
-    debug();
-    return 0;
 }
 
 
@@ -275,10 +253,10 @@ static void ldhl_SP_d8() {HL = SP + _d8;ft = 12;F &= 0x3F;}
 static void ld_a16_SP() {_a16 = SP;ft = 20;}
 
 // PUSH nn
-static void push_AF() {ROM[SP--] = A;ROM[SP--] = F;ft = 16;}
-static void push_BC() {ROM[SP--] = B;ROM[SP--] = C;ft = 16;}
-static void push_DE() {ROM[SP--] = D;ROM[SP--] = E;ft = 16;}
-static void push_HL() {ROM[SP--] = H;ROM[SP--] = L;ft = 16;}
+static void push_AF() {ROM[--SP] = A;ROM[--SP] = F;ft = 16;}
+static void push_BC() {ROM[--SP] = B;ROM[--SP] = C;ft = 16;}
+static void push_DE() {ROM[--SP] = D;ROM[--SP] = E;ft = 16;}
+static void push_HL() {ROM[--SP] = H;ROM[--SP] = L;ft = 16;}
 
 // POP nn
 static void pop_AF() {F = ROM[SP++];A = ROM[SP++];ft = 12;}
@@ -343,15 +321,15 @@ static int sub;
 //  N - Set.
 //  H - Set if no borrow from bit 4.
 //  C - Set if no borrow.
-static void sub_A_A() {sub=A-A;SUB_FLAG();A=sub;ft = 4;}
-static void sub_A_B() {sub=A-B;SUB_FLAG();A=sub;ft = 4;}
-static void sub_A_C() {sub=A-C;SUB_FLAG();A=sub;ft = 4;}
-static void sub_A_D() {sub=A-D;SUB_FLAG();A=sub;ft = 4;}
-static void sub_A_E() {sub=A-E;SUB_FLAG();A=sub;ft = 4;}
-static void sub_A_H() {sub=A-H;SUB_FLAG();A=sub;ft = 4;}
-static void sub_A_L() {sub=A-L;SUB_FLAG();A=sub;ft = 4;}
-static void sub_A_HL() {sub=A-ROM[HL];SUB_FLAG();A=sub;ft = 8;}
-static void sub_A_d8() {sub=A-_d8;SUB_FLAG();A=(unsigned char)sub;ft = 8;}
+static void sub_A() {sub=A-A;SUB_FLAG();A=sub;ft = 4;}
+static void sub_B() {sub=A-B;SUB_FLAG();A=sub;ft = 4;}
+static void sub_C() {sub=A-C;SUB_FLAG();A=sub;ft = 4;}
+static void sub_D() {sub=A-D;SUB_FLAG();A=sub;ft = 4;}
+static void sub_E() {sub=A-E;SUB_FLAG();A=sub;ft = 4;}
+static void sub_H() {sub=A-H;SUB_FLAG();A=sub;ft = 4;}
+static void sub_L() {sub=A-L;SUB_FLAG();A=sub;ft = 4;}
+static void sub_HL() {sub=A-ROM[HL];SUB_FLAG();A=sub;ft = 8;}
+static void sub_d8() {sub=A-_d8;SUB_FLAG();A=(unsigned char)sub;ft = 8;}
 
 // SBC A,n
 // Subtract n + Carry flag from A; (n = A,B,C,D,E,H,L,(HL),#)
@@ -565,11 +543,11 @@ static void stop() {isStop=1;ft = 4;}
 
 // DI
 // This instruction disables interrupts but not immediately. Interrupts are disabled after instruction after DI is executed
-static unsigned ime = 0;
-static void di() {ime=0;ft = 4;}
+static unsigned char IE = 0;
+static void di() {IE=0;ft = 4;}
 // EI
 // Enable interrupts. This intruction enables interrupts but not immediately. Interrupts are enabled after instruction after EI is executed.
-static void ei() {ime=1;ft = 4;}
+static void ei() {IE=1;ft = 4;}
 
 
 // NOTE: Rotates & Shifts
@@ -922,12 +900,276 @@ static void res_7_HL() {BIT_RES(7,ROM[HL]);ft = 16;}
 
 // JP nn
 // Jump to address nn; nn = two byte immediate value. (LS byte first.)
+static void jp_d16() {PC=_d16;ft=16;}
+
+// JP cc,nn
+// Jump to address n if following condition is true:
+//  cc = NZ, Jump if Z flag is reset.
+//  cc = Z, Jump if Z flag is set.
+//  cc = NC, Jump if C flag is reset.
+//  cc = C, Jump if C flag is set.
+
+static void jp_NZ() {
+    ft = 12;
+    if(F&0x80 == 0x00) {
+        PC = _d16;
+        ft += 4;
+    } else {
+        PC += 2;
+    }
+}
+static void jp_Z() {
+    ft = 12;
+    if(F&0x80 == 0x80) {
+        PC = _d16;
+        ft += 4;
+    } else {
+        PC += 2;
+    }
+}
+static void jp_NC() {
+    ft = 12;
+    if(F&0x10 == 0x00) {
+        PC = _d16;
+        ft += 4;
+    } else {
+        PC += 2;
+    }
+}
+static void jp_C() {
+    ft = 12;
+    if(F&0x0 == 0x10) {
+        PC = _d16;
+        ft += 4;
+    } else {
+        PC += 2;
+    }
+}
+
+// JP (HL)
+// Jump to address contained in HL
+static void jp_HL() {PC=HL;ft = 4;}
+
+// JR n
+// Add n to current address and jump to it; (n = one byte signed immediate value)
+static void jr_d8() {
+    ft = 12;
+    signed char d = _d8;
+    if(d<0) {
+        d = ~d + 1;
+        PC-=d;
+    } else {
+        PC+=d;
+    }
+}
+
+// JR cc,n
+static void jr_NZ() {
+    ft = 8;
+    signed char d = _d8;
+    if(F&0x80 == 0x00) {
+        if(d<0) {
+            d = ~d + 1;
+            PC-=d;
+        } else {
+            PC+=d;
+        }
+        ft += 4;
+    }
+}
+static void jr_Z() {
+    ft = 8;
+    signed char d = _d8;
+    if(F&0x80 == 0x80) {
+        if(d<0) {
+            d = ~d + 1;
+            PC-=d;
+        } else {
+            PC+=d;
+        }
+        ft += 4;
+    }
+}
+static void jr_NC() {
+    ft = 8;
+    signed char d = _d8;
+    if(F&0x10 == 0x00) {
+        if(d<0) {
+            d = ~d + 1;
+            PC-=d;
+        } else {
+            PC+=d;
+        }
+        ft += 4;
+    }
+}
+static void jr_C() {
+    ft = 8;
+    signed char d = _d8;
+    if(F&0x0 == 0x10) {
+        if(d<0) {
+            d = ~d + 1;
+            PC-=d;
+        } else {
+            PC+=d;
+        }
+        ft += 4;
+    }
+}
+
+// CALL nn
+static void call_nn() {
+    const unsigned short addr = _d16;
+    // SP-=2;
+    ROM[--SP]=(unsigned char)PC>>8;
+    ROM[--SP]=(unsigned char)PC;
+    PC = addr;
+    ft = 24;
+}
+
+// CALL cc,nn
+// Call address n if following condition is true:
+// cc = NZ, Call if Z flag is reset.
+// cc = Z, Call if Z flag is set.
+// cc = NC, Call if C flag is reset.
+// cc = C, Call if C flag is set.
+
+static void call_NZ() {
+    ft = 12;
+    if(F&0x80 == 0x00) {
+        call_nn();
+    }
+}
+static void call_Z() {
+    ft = 12;
+    if(F&0x80 == 0x80) {
+        call_nn();
+    }
+}
+static void call_NC() {
+    ft = 12;
+    if(F&0x10 == 0x00) {
+        call_nn();
+    }
+}
+static void call_C() {
+    ft = 12;
+    if(F&0x0 == 0x10) {
+        call_nn();
+    }
+}
+
+// RST n
+// Push present address onto stack.
+// Jump to address $0000 + n.
+// n = $00,$08,$10,$18,$20,$28,$30,$38
+#define RST_(addr) do {\
+    ROM[--SP]=(unsigned char)PC>>8;\
+    ROM[--SP]=(unsigned char)PC;\
+    PC = (addr);\
+    ft = 16;\
+} while(0)
+
+static void rst_00h() {
+    RST_(0x00);
+}
+static void rst_08h() {
+    RST_(0x08);
+}
+static void rst_10h() {
+    RST_(0x10);
+}
+static void rst_18h() {
+    RST_(0x18);
+}
+static void rst_20h() {
+    RST_(0x20);
+}
+static void rst_28h() {
+    RST_(0x28);
+}
+static void rst_30h() {
+    RST_(0x30);
+}
+static void rst_38h() {
+    RST_(0x38);
+}
+
+// RET
+// Pop two bytes from stack & jump to that address
+
+static void ret() {
+    PC = ROM[SP++] | ROM[SP++] << 8;
+    ft = 16;
+    // ft = 12; conflict
+}
+
+// RET cc
+// Return if following condition is true:
+// (...)
+static void ret_NZ() {
+    ft = 8;
+    if(F&0x80 == 0x00) {
+        ret();
+        ft = 20;
+    }
+}
+static void ret_Z() {
+    ft = 8;
+    if(F&0x80 == 0x80) {
+        ret();
+        ft = 20;
+    }
+}
+static void ret_NC() {
+    ft = 8;
+    if(F&0x10 == 0x00) {
+        ret();
+        ft = 20;
+    }
+}
+static void ret_C() {
+    ft = 8;
+    if(F&0x0 == 0x10) {
+        ret();
+        ft = 20;
+    }
+}
+
+
+// RETI
+// Pop two bytes from stack & jump to that address then enable interrupts
+static void reti() {
+    IE = 1;
+    ret();
+}
+
+
+
 
 void (*op_map[])() = {
     // 0x
     nop, ld_BC_d16, ld_BC_A, inc_BC, inc_B, dec_B, ld_B_d8, rlca, ld_a16_SP, add_HL_BC, ld_A_BC, dec_BC, inc_C, dec_C, ld_C_d8, rrca,
     // 1x
-    stop, ld_DE_d16, ld_DE_A, inc_DE, inc_D, dec_D, ld_D_d8, rla,
+    stop, ld_DE_d16, ld_DE_A, inc_DE, inc_D, dec_D, ld_D_d8, rla, jr_d8, add_HL_DE, ld_A_DE, dec_DE, inc_E, dec_E, ld_E_d8, rra,
+    // 2x
+    jr_NZ, ld_HL_d16, ld_HLI_A, inc_HL, inc_H, dec_H, ld_H_d8, XX, jr_Z, add_HL_HL, ld_A_HLI, dec_HL, inc_L, dec_L, ld_L_d8, cpl,
+    //3x
+    jr_NC, ld_SP_d16, ld_HLD_A, inc_SP, inc_HL, dec_HL, ld_HL_d8, scf, jr_C, add_HL_SP, ld_A_HLD, dec_SP, inc_A, dec_A, ld_A_d8, ccf,
+    // 4x
+    ld_B_B, ld_B_C, ld_B_D, ld_B_E, ld_B_H, ld_B_L, ld_B_HL, ld_B_A, ld_C_B, ld_C_C, ld_C_D, ld_C_E, ld_C_H, ld_C_L, ld_C_HL, ld_C_A,
+    // 5x
+    ld_D_B, ld_D_C, ld_D_D, ld_D_E, ld_D_H, ld_D_L, ld_D_HL, ld_D_A, ld_E_B, ld_E_C, ld_E_D, ld_E_E, ld_E_H, ld_E_L, ld_E_HL, ld_E_A,
+    // 6x
+    ld_H_B, ld_H_C, ld_H_D, ld_H_E, ld_H_H, ld_H_L, ld_H_HL, ld_H_A, ld_L_B, ld_L_C, ld_L_D, ld_L_E, ld_L_H, ld_L_L, ld_L_HL, ld_L_A,
+    // 7x
+    ld_HL_B, ld_HL_C, ld_HL_D, ld_HL_E, ld_HL_H, ld_HL_L, halt, ld_HL_A, ld_A_B, ld_A_C, ld_A_D, ld_A_E, ld_A_H, ld_A_L, ld_A_HL, ld_A_A,
+    // 8x
+    add_A_B, add_A_C, add_A_D, add_A_E, add_A_H, add_A_L, adc_A_HL, add_A_A, adc_A_B, adc_A_C, adc_A_D, adc_A_E, adc_A_H, adc_A_L, adc_A_HL, adc_A_A,
+    // 9x
+    sub_B,
+
+
 };
 
 
@@ -935,4 +1177,25 @@ void exe() {
     op_map[ROM[PC++]]();
     ct += ft;
     ft = 0;
+}
+
+
+
+
+int main()
+{
+    F = 0xF;
+    A = 0x94;
+    B = 10;
+    C = 0xC;
+    D = 0xD;
+    E = 0xE;
+    H = 0x1;
+    L = 0x2;
+    SP = 0x0F;
+    PC = 0xAAF0;
+    debug();
+    rlca();
+    debug();
+    return 0;
 }
