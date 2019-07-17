@@ -1,4 +1,5 @@
-// #include "cpu.h"
+#include "cpu.h"
+#include "mmu.h"
 #include <stdio.h>
 #define WASM_EXPORT __attribute__((visibility("default")))
 
@@ -89,21 +90,21 @@ void debug() {
 }
 
 
-
+// 4Mhz
 static unsigned char ft;
 static unsigned char ct;
 
 // void (*CB[0x100])() = {};
 
-unsigned char MEM[0xFF];
+// unsigned char MEM(0xFF];
 
 
 
 
-#define _d8     (MEM[PC++])
-#define _d16    (MEM[PC++]|MEM[PC++]<<8)
-#define _a8     (MEM[0xFF00|_d8])
-#define _a16    (MEM[_d16])
+#define _d8     (MEM(PC++))
+#define _d16    (MEM(PC++)|MEM(PC++)<<8)
+#define _a8     (MEM(0xFF00|_d8))
+#define _a16    (MEM(_d16))
 
 static void XX() {
     const unsigned short loc = PC-1;
@@ -184,49 +185,49 @@ static void ld_L_H() {L = H;ft = 4;}
 static void ld_L_L() {L = L;ft = 4;}
 
 // LD r, (HL)
-static void ld_B_HL() {B = MEM[HL];ft = 8;}
-static void ld_C_HL() {C = MEM[HL];ft = 8;}
-static void ld_D_HL() {D = MEM[HL];ft = 8;}
-static void ld_E_HL() {E = MEM[HL];ft = 8;}
-static void ld_H_HL() {H = MEM[HL];ft = 8;}
-static void ld_L_HL() {L = MEM[HL];ft = 8;}
+static void ld_B_HL() {B = MEM(HL);ft = 8;}
+static void ld_C_HL() {C = MEM(HL);ft = 8;}
+static void ld_D_HL() {D = MEM(HL);ft = 8;}
+static void ld_E_HL() {E = MEM(HL);ft = 8;}
+static void ld_H_HL() {H = MEM(HL);ft = 8;}
+static void ld_L_HL() {L = MEM(HL);ft = 8;}
 
 
 // LD (HL), r
-static void ld_HL_A() {MEM[HL] = A;ft = 8;}
-static void ld_HL_B() {MEM[HL] = B;ft = 8;}
-static void ld_HL_C() {MEM[HL] = C;ft = 8;}
-static void ld_HL_D() {MEM[HL] = D;ft = 8;}
-static void ld_HL_E() {MEM[HL] = E;ft = 8;}
-static void ld_HL_H() {MEM[HL] = H;ft = 8;}
-static void ld_HL_L() {MEM[HL] = L;ft = 8;}
-static void ld_HL_d8() {MEM[HL] = _d8;ft = 12;}
+static void ld_HL_A() {MEM(HL) = A;ft = 8;}
+static void ld_HL_B() {MEM(HL) = B;ft = 8;}
+static void ld_HL_C() {MEM(HL) = C;ft = 8;}
+static void ld_HL_D() {MEM(HL) = D;ft = 8;}
+static void ld_HL_E() {MEM(HL) = E;ft = 8;}
+static void ld_HL_H() {MEM(HL) = H;ft = 8;}
+static void ld_HL_L() {MEM(HL) = L;ft = 8;}
+static void ld_HL_d8() {MEM(HL) = _d8;ft = 12;}
 
 // LD A, n
 // n = A,B,C,D,E,H,L,(BC),(DE),(HL),(nn),#
 // nn = two byte immediate value. (LS byte first.)
 static void ld_A_a16() {A = _a16;ft = 16;}
-static void ld_A_BC() {A = MEM[BC];ft = 8;}
-static void ld_A_DE() {A = MEM[DE];ft = 8;}
-static void ld_A_HL() {A = MEM[HL];ft = 8;}
+static void ld_A_BC() {A = MEM(BC);ft = 8;}
+static void ld_A_DE() {A = MEM(DE);ft = 8;}
+static void ld_A_HL() {A = MEM(HL);ft = 8;}
 
 // LD n, A
 static void ld_a16_A() {_a16 = A;ft = 16;}
-static void ld_BC_A() {MEM[BC] = A;ft = 8;}
-static void ld_DE_A() {MEM[DE] = A;ft = 8;}
+static void ld_BC_A() {MEM(BC) = A;ft = 8;}
+static void ld_DE_A() {MEM(DE) = A;ft = 8;}
 
 // LD A, (C)
 // Same as: LD A, ($FF00+C)
-static void ld_A_rC() {A = MEM[0xFF00|C];ft = 8;}
+static void ld_A_rC() {A = MEM(0xFF00|C);ft = 8;}
 // LD (C), A
-static void ld_rC_A() {MEM[0xFF00|C] = A;ft = 8;}
+static void ld_rC_A() {MEM(0xFF00|C) = A;ft = 8;}
 
 // LD A, (HL[x])    x: [I]ncrement / [D]ecrement
-static void ld_A_HLD() {A = MEM[HL--];ft = 8;}
-static void ld_A_HLI() {A = MEM[HL++];ft = 8;}
+static void ld_A_HLD() {A = MEM(HL--);ft = 8;}
+static void ld_A_HLI() {A = MEM(HL++);ft = 8;}
 // LD (HL[x]), A    x: [I]ncrement / [D]ecrement
-static void ld_HLD_A() {MEM[HL--] = A;ft = 8;}
-static void ld_HLI_A() {MEM[HL++] = A;ft = 8;}
+static void ld_HLD_A() {MEM(HL--) = A;ft = 8;}
+static void ld_HLI_A() {MEM(HL++) = A;ft = 8;}
 
 // LDH (n), A
 static void ld_a8_A() {_a8 = A;ft = 12;}
@@ -253,16 +254,16 @@ static void ldhl_SP_d8() {HL = SP + _d8;ft = 12;F &= 0x3F;}
 static void ld_a16_SP() {_a16 = SP;ft = 20;}
 
 // PUSH nn
-static void push_AF() {MEM[--SP] = A;MEM[--SP] = F;ft = 16;}
-static void push_BC() {MEM[--SP] = B;MEM[--SP] = C;ft = 16;}
-static void push_DE() {MEM[--SP] = D;MEM[--SP] = E;ft = 16;}
-static void push_HL() {MEM[--SP] = H;MEM[--SP] = L;ft = 16;}
+static void push_AF() {MEM(--SP) = A;MEM(--SP) = F;ft = 16;}
+static void push_BC() {MEM(--SP) = B;MEM(--SP) = C;ft = 16;}
+static void push_DE() {MEM(--SP) = D;MEM(--SP) = E;ft = 16;}
+static void push_HL() {MEM(--SP) = H;MEM(--SP) = L;ft = 16;}
 
 // POP nn
-static void pop_AF() {F = MEM[SP++];A = MEM[SP++];ft = 12;}
-static void pop_BC() {C = MEM[SP++];B = MEM[SP++];ft = 12;}
-static void pop_DE() {E = MEM[SP++];D = MEM[SP++];ft = 12;}
-static void pop_HL() {L = MEM[SP++];H = MEM[SP++];ft = 12;}
+static void pop_AF() {F = MEM(SP++);A = MEM(SP++);ft = 12;}
+static void pop_BC() {C = MEM(SP++);B = MEM(SP++);ft = 12;}
+static void pop_DE() {E = MEM(SP++);D = MEM(SP++);ft = 12;}
+static void pop_HL() {L = MEM(SP++);H = MEM(SP++);ft = 12;}
 
 // NOTE: 8-Bit ALU
 
@@ -282,7 +283,7 @@ static void add_A_D() {ADD_FLAG((sum=A+D));A=sum;ft = 4;}
 static void add_A_E() {ADD_FLAG((sum=A+E));A=sum;ft = 4;}
 static void add_A_H() {ADD_FLAG((sum=A+H));A=sum;ft = 4;}
 static void add_A_L() {ADD_FLAG((sum=A+L));A=sum;ft = 4;}
-static void add_A_HL() {ADD_FLAG((sum=A+MEM[HL]));A=sum;ft = 8;}
+static void add_A_HL() {ADD_FLAG((sum=A+MEM(HL)));A=sum;ft = 8;}
 static void add_A_d8() {ADD_FLAG((sum=A+_d8));A=(unsigned char)sum;ft = 8;}
 
 // ADC A, n
@@ -299,7 +300,7 @@ static void adc_A_D() {ADD_FLAG((sum=F_C+A+D));A=sum;ft = 4;}
 static void adc_A_E() {ADD_FLAG((sum=F_C+A+E));A=sum;ft = 4;}
 static void adc_A_H() {ADD_FLAG((sum=F_C+A+H));A=sum;ft = 4;}
 static void adc_A_L() {ADD_FLAG((sum=F_C+A+L));A=sum;ft = 4;}
-static void adc_A_HL() {ADD_FLAG((sum=F_C+A+MEM[HL]));A=sum;ft = 8;}
+static void adc_A_HL() {ADD_FLAG((sum=F_C+A+MEM(HL)));A=sum;ft = 8;}
 static void adc_A_d8() {ADD_FLAG((sum=F_C+A+_d8));A=(unsigned char)sum;ft = 8;}
 
 #define SUB_FLAG() do {\
@@ -328,7 +329,7 @@ static void sub_D() {sub=A-D;SUB_FLAG();A=sub;ft = 4;}
 static void sub_E() {sub=A-E;SUB_FLAG();A=sub;ft = 4;}
 static void sub_H() {sub=A-H;SUB_FLAG();A=sub;ft = 4;}
 static void sub_L() {sub=A-L;SUB_FLAG();A=sub;ft = 4;}
-static void sub_HL() {sub=A-MEM[HL];SUB_FLAG();A=sub;ft = 8;}
+static void sub_HL() {sub=A-MEM(HL);SUB_FLAG();A=sub;ft = 8;}
 static void sub_d8() {sub=A-_d8;SUB_FLAG();A=(unsigned char)sub;ft = 8;}
 
 // SBC A,n
@@ -340,7 +341,7 @@ static void sbc_A_D() {sub=A-F_C-D;SUB_FLAG();A=sub;ft = 4;}
 static void sbc_A_E() {sub=A-F_C-E;SUB_FLAG();A=sub;ft = 4;}
 static void sbc_A_H() {sub=A-F_C-H;SUB_FLAG();A=sub;ft = 4;}
 static void sbc_A_L() {sub=A-F_C-L;SUB_FLAG();A=sub;ft = 4;}
-static void sbc_A_HL() {sub=A-F_C-MEM[HL];SUB_FLAG();A=sub;ft = 8;}
+static void sbc_A_HL() {sub=A-F_C-MEM(HL);SUB_FLAG();A=sub;ft = 8;}
 static void sbc_A_d8() {sub=A-F_C-_d8;SUB_FLAG();A=(unsigned char)sub;ft = 8;}
 
 // AND n
@@ -364,7 +365,7 @@ static void and_D() {AND_FLAG((A&=D));ft = 4;}
 static void and_E() {AND_FLAG((A&=E));ft = 4;}
 static void and_H() {AND_FLAG((A&=H));ft = 4;}
 static void and_L() {AND_FLAG((A&=L));ft = 4;}
-static void and_HL() {AND_FLAG((A&=MEM[HL]));ft = 8;}
+static void and_HL() {AND_FLAG((A&=MEM(HL)));ft = 8;}
 static void and_d8() {AND_FLAG((A&=_d8));ft = 8;}
 
 // OR n
@@ -388,7 +389,7 @@ static void or_D() {OR_FLAG((A|=D));ft = 4;}
 static void or_E() {OR_FLAG((A|=E));ft = 4;}
 static void or_H() {OR_FLAG((A|=H));ft = 4;}
 static void or_L() {OR_FLAG((A|=L));ft = 4;}
-static void or_HL() {OR_FLAG((A|=MEM[HL]));ft = 8;}
+static void or_HL() {OR_FLAG((A|=MEM(HL)));ft = 8;}
 static void or_d8() {OR_FLAG((A|=_d8));ft = 8;}
 
 // XOR n
@@ -400,7 +401,7 @@ static void xor_D() {OR_FLAG((A^=D));ft = 4;}
 static void xor_E() {OR_FLAG((A^=E));ft = 4;}
 static void xor_H() {OR_FLAG((A^=H));ft = 4;}
 static void xor_L() {OR_FLAG((A^=L));ft = 4;}
-static void xor_HL() {OR_FLAG((A^=MEM[HL]));ft = 8;}
+static void xor_HL() {OR_FLAG((A^=MEM(HL)));ft = 8;}
 static void xor_d8() {OR_FLAG((A^=_d8));ft = 8;}
 
 // CP n
@@ -418,7 +419,7 @@ static void cp_D() {sub=A-D;SUB_FLAG();ft = 4;}
 static void cp_E() {sub=A-E;SUB_FLAG();ft = 4;}
 static void cp_H() {sub=A-H;SUB_FLAG();ft = 4;}
 static void cp_L() {sub=A-L;SUB_FLAG();ft = 4;}
-static void cp_HL() {sub=A-MEM[HL];SUB_FLAG();ft = 8;}
+static void cp_HL() {sub=A-MEM(HL);SUB_FLAG();ft = 8;}
 static void cp_d8() {sub=A-_d8;SUB_FLAG();ft = 8;}
 
 // INC n
@@ -431,7 +432,7 @@ static void inc_D() {OR_FLAG(++D);ft = 4;}
 static void inc_E() {OR_FLAG(++E);ft = 4;}
 static void inc_H() {OR_FLAG(++H);ft = 4;}
 static void inc_L() {OR_FLAG(++L);ft = 4;}
-static void inc_rHL() {OR_FLAG(++MEM[HL]);ft = 12;}
+static void inc_rHL() {OR_FLAG(++MEM(HL));ft = 12;}
 
 // DEC n
 // Decrement register n; (n = A,B,C,D,E,H,L,(HL))
@@ -453,7 +454,7 @@ static void dec_D() {DEC_FLAG(--D);ft = 4;}
 static void dec_E() {DEC_FLAG(--E);ft = 4;}
 static void dec_H() {DEC_FLAG(--H);ft = 4;}
 static void dec_L() {DEC_FLAG(--L);ft = 4;}
-static void dec_rHL() {DEC_FLAG(--MEM[HL]);ft = 12;}
+static void dec_rHL() {DEC_FLAG(--MEM(HL));ft = 12;}
 
 // NOTE: 16-Bit Arithmetic
 
@@ -510,7 +511,7 @@ static void swap_D() {swap=D&0xF0;D=D<<4|swap>>4;OR_FLAG(D);ft = 8;}
 static void swap_E() {swap=E&0xF0;E=E<<4|swap>>4;OR_FLAG(E);ft = 8;}
 static void swap_H() {swap=H&0xF0;H=H<<4|swap>>4;OR_FLAG(H);ft = 8;}
 static void swap_L() {swap=L&0xF0;L=L<<4|swap>>4;OR_FLAG(L);ft = 8;}
-static void swap_HL() {swap=MEM[HL]&0xF0;MEM[HL]=MEM[HL]<<4|swap>>4;OR_FLAG(MEM[HL]);ft = 16;}
+static void swap_HL() {swap=MEM(HL)&0xF0;MEM(HL)=MEM(HL)<<4|swap>>4;OR_FLAG(MEM(HL));ft = 16;}
 
 // DAA TODO:
 
@@ -589,7 +590,7 @@ static void rlc_D() {swap=D&0x80;D=(D<<1)|(swap>>7);RLCA_FLAG(D);ft = 8;}
 static void rlc_E() {swap=E&0x80;E=(E<<1)|(swap>>7);RLCA_FLAG(E);ft = 8;}
 static void rlc_H() {swap=H&0x80;H=(H<<1)|(swap>>7);RLCA_FLAG(H);ft = 8;}
 static void rlc_L() {swap=L&0x80;L=(L<<1)|(swap>>7);RLCA_FLAG(L);ft = 8;}
-static void rlc_HL() {swap=MEM[HL]&0x80;MEM[HL]=(MEM[HL]<<1)|(swap>>7);RLCA_FLAG(MEM[HL]);ft = 16;}
+static void rlc_HL() {swap=MEM(HL)&0x80;MEM(HL)=(MEM(HL)<<1)|(swap>>7);RLCA_FLAG(MEM(HL));ft = 16;}
 
 // RL n
 // Rotate n left through Carry flag; (n = A,B,C,D,E,H,L,(HL))
@@ -600,7 +601,7 @@ static void rl_D() {swap=D&0x80;D=(D<<1)|(F&0x10>>4);OR_FLAG(D);F|=swap>>3;ft = 
 static void rl_E() {swap=E&0x80;E=(E<<1)|(F&0x10>>4);OR_FLAG(E);F|=swap>>3;ft = 4;}
 static void rl_H() {swap=H&0x80;H=(H<<1)|(F&0x10>>4);OR_FLAG(H);F|=swap>>3;ft = 4;}
 static void rl_L() {swap=L&0x80;L=(L<<1)|(F&0x10>>4);OR_FLAG(L);F|=swap>>3;ft = 4;}
-static void rl_HL() {swap=MEM[HL]&0x80;MEM[HL]=(MEM[HL]<<1)|(F&0x10>>4);OR_FLAG(MEM[HL]);F|=swap>>3;ft = 16;}
+static void rl_HL() {swap=MEM(HL)&0x80;MEM(HL)=(MEM(HL)<<1)|(F&0x10>>4);OR_FLAG(MEM(HL));F|=swap>>3;ft = 16;}
 
 // RRC n
 // Rotate n right. Old bit 0 to Carry flag
@@ -611,7 +612,7 @@ static void rrc_D() {swap=D&1;D=(D>>1)|(swap<<7);RRCA_FLAG(D);ft = 4;}
 static void rrc_E() {swap=E&1;E=(E>>1)|(swap<<7);RRCA_FLAG(E);ft = 4;}
 static void rrc_H() {swap=H&1;H=(H>>1)|(swap<<7);RRCA_FLAG(H);ft = 4;}
 static void rrc_L() {swap=L&1;L=(L>>1)|(swap<<7);RRCA_FLAG(L);ft = 4;}
-static void rrc_HL() {swap=MEM[HL]&1;MEM[HL]=(MEM[HL]>>1)|(swap<<7);RRCA_FLAG(MEM[HL]);ft = 16;}
+static void rrc_HL() {swap=MEM(HL)&1;MEM(HL)=(MEM(HL)>>1)|(swap<<7);RRCA_FLAG(MEM(HL));ft = 16;}
 
 // RR n
 // Rotate n right through Carry flag
@@ -622,7 +623,7 @@ static void rr_D() {swap=D&1;D=(D>>1)|(F&0x10<<3);OR_FLAG(D);F|=swap<<F_C_BIT;ft
 static void rr_E() {swap=E&1;E=(E>>1)|(F&0x10<<3);OR_FLAG(E);F|=swap<<F_C_BIT;ft = 4;}
 static void rr_H() {swap=H&1;H=(H>>1)|(F&0x10<<3);OR_FLAG(H);F|=swap<<F_C_BIT;ft = 4;}
 static void rr_L() {swap=L&1;L=(L>>1)|(F&0x10<<3);OR_FLAG(L);F|=swap<<F_C_BIT;ft = 4;}
-static void rr_HL() {swap=MEM[HL]&1;MEM[HL]=(MEM[HL]>>1)|(F&0x10<<3);OR_FLAG(MEM[HL]);F|=swap<<F_C_BIT;ft = 16;}
+static void rr_HL() {swap=MEM(HL)&1;MEM(HL)=(MEM(HL)>>1)|(F&0x10<<3);OR_FLAG(MEM(HL));F|=swap<<F_C_BIT;ft = 16;}
 
 // SLA n
 // Shift n left into Carry. LSB of n set to 0; (n = A,B,C,D,E,H,L,(HL))
@@ -633,7 +634,7 @@ static void sla_D() {swap=D;D=(D<<1);OR_FLAG(D);F|=swap&0x80>>3;ft = 8;}
 static void sla_E() {swap=E;E=(E<<1);OR_FLAG(E);F|=swap&0x80>>3;ft = 8;}
 static void sla_H() {swap=H;H=(H<<1);OR_FLAG(H);F|=swap&0x80>>3;ft = 8;}
 static void sla_L() {swap=L;L=(L<<1);OR_FLAG(L);F|=swap&0x80>>3;ft = 8;}
-static void sla_HL() {swap=MEM[HL];MEM[HL]=(MEM[HL]<<1);OR_FLAG(MEM[HL]);F|=swap&0x80>>3;ft = 16;}
+static void sla_HL() {swap=MEM(HL);MEM(HL)=(MEM(HL)<<1);OR_FLAG(MEM(HL));F|=swap&0x80>>3;ft = 16;}
 
 // SRA n
 // Shift n right into Carry. MSB doesn't change
@@ -644,7 +645,7 @@ static void sra_D() {swap=D;D=(D>>1)|(swap&0x80);OR_FLAG(D);F|=(swap&1)<<F_C_BIT
 static void sra_E() {swap=E;E=(E>>1)|(swap&0x80);OR_FLAG(E);F|=(swap&1)<<F_C_BIT;ft = 8;}
 static void sra_H() {swap=H;H=(H>>1)|(swap&0x80);OR_FLAG(H);F|=(swap&1)<<F_C_BIT;ft = 8;}
 static void sra_L() {swap=L;L=(L>>1)|(swap&0x80);OR_FLAG(L);F|=(swap&1)<<F_C_BIT;ft = 8;}
-static void sra_HL() {swap=MEM[HL];MEM[HL]=(MEM[HL]>>1)|(swap&0x80);OR_FLAG(MEM[HL]);F|=(swap&1)<<F_C_BIT;ft = 16;}
+static void sra_HL() {swap=MEM(HL);MEM(HL)=(MEM(HL)>>1)|(swap&0x80);OR_FLAG(MEM(HL));F|=(swap&1)<<F_C_BIT;ft = 16;}
 
 // SRL n
 // Shift n right into Carry. MSB set to 0
@@ -655,7 +656,7 @@ static void srl_D() {swap=D;D=(D>>1);OR_FLAG(D);F|=(swap&1)<<F_C_BIT;ft = 8;}
 static void srl_E() {swap=E;E=(E>>1);OR_FLAG(E);F|=(swap&1)<<F_C_BIT;ft = 8;}
 static void srl_H() {swap=H;H=(H>>1);OR_FLAG(H);F|=(swap&1)<<F_C_BIT;ft = 8;}
 static void srl_L() {swap=L;L=(L>>1);OR_FLAG(L);F|=(swap&1)<<F_C_BIT;ft = 8;}
-static void srl_HL() {swap=MEM[HL];MEM[HL]=(MEM[HL]>>1);OR_FLAG(MEM[HL]);F|=(swap&1)<<F_C_BIT;ft = 16;}
+static void srl_HL() {swap=MEM(HL);MEM(HL)=(MEM(HL)>>1);OR_FLAG(MEM(HL));F|=(swap&1)<<F_C_BIT;ft = 16;}
 
 
 // BIT b,r
@@ -678,7 +679,7 @@ static void bit_0_D() {BIT_FLAG(0,D);ft = 8;}
 static void bit_0_E() {BIT_FLAG(0,E);ft = 8;}
 static void bit_0_H() {BIT_FLAG(0,H);ft = 8;}
 static void bit_0_L() {BIT_FLAG(0,L);ft = 8;}
-static void bit_0_HL() {BIT_FLAG(0,MEM[HL]);ft = 16;}
+static void bit_0_HL() {BIT_FLAG(0,MEM(HL));ft = 16;}
 
 static void bit_1_A() {BIT_FLAG(1,A);ft = 8;}
 static void bit_1_B() {BIT_FLAG(1,B);ft = 8;}
@@ -687,7 +688,7 @@ static void bit_1_D() {BIT_FLAG(1,D);ft = 8;}
 static void bit_1_E() {BIT_FLAG(1,E);ft = 8;}
 static void bit_1_H() {BIT_FLAG(1,H);ft = 8;}
 static void bit_1_L() {BIT_FLAG(1,L);ft = 8;}
-static void bit_1_HL() {BIT_FLAG(1,MEM[HL]);ft = 16;}
+static void bit_1_HL() {BIT_FLAG(1,MEM(HL));ft = 16;}
 
 static void bit_2_A() {BIT_FLAG(2,A);ft = 8;}
 static void bit_2_B() {BIT_FLAG(2,B);ft = 8;}
@@ -696,7 +697,7 @@ static void bit_2_D() {BIT_FLAG(2,D);ft = 8;}
 static void bit_2_E() {BIT_FLAG(2,E);ft = 8;}
 static void bit_2_H() {BIT_FLAG(2,H);ft = 8;}
 static void bit_2_L() {BIT_FLAG(2,L);ft = 8;}
-static void bit_2_HL() {BIT_FLAG(2,MEM[HL]);ft = 16;}
+static void bit_2_HL() {BIT_FLAG(2,MEM(HL));ft = 16;}
 
 static void bit_3_A() {BIT_FLAG(3,A);ft = 8;}
 static void bit_3_B() {BIT_FLAG(3,B);ft = 8;}
@@ -705,7 +706,7 @@ static void bit_3_D() {BIT_FLAG(3,D);ft = 8;}
 static void bit_3_E() {BIT_FLAG(3,E);ft = 8;}
 static void bit_3_H() {BIT_FLAG(3,H);ft = 8;}
 static void bit_3_L() {BIT_FLAG(3,L);ft = 8;}
-static void bit_3_HL() {BIT_FLAG(3,MEM[HL]);ft = 16;}
+static void bit_3_HL() {BIT_FLAG(3,MEM(HL));ft = 16;}
 
 static void bit_4_A() {BIT_FLAG(4,A);ft = 8;}
 static void bit_4_B() {BIT_FLAG(4,B);ft = 8;}
@@ -714,7 +715,7 @@ static void bit_4_D() {BIT_FLAG(4,D);ft = 8;}
 static void bit_4_E() {BIT_FLAG(4,E);ft = 8;}
 static void bit_4_H() {BIT_FLAG(4,H);ft = 8;}
 static void bit_4_L() {BIT_FLAG(4,L);ft = 8;}
-static void bit_4_HL() {BIT_FLAG(4,MEM[HL]);ft = 16;}
+static void bit_4_HL() {BIT_FLAG(4,MEM(HL));ft = 16;}
 
 static void bit_5_A() {BIT_FLAG(5,A);ft = 8;}
 static void bit_5_B() {BIT_FLAG(5,B);ft = 8;}
@@ -723,7 +724,7 @@ static void bit_5_D() {BIT_FLAG(5,D);ft = 8;}
 static void bit_5_E() {BIT_FLAG(5,E);ft = 8;}
 static void bit_5_H() {BIT_FLAG(5,H);ft = 8;}
 static void bit_5_L() {BIT_FLAG(5,L);ft = 8;}
-static void bit_5_HL() {BIT_FLAG(5,MEM[HL]);ft = 16;}
+static void bit_5_HL() {BIT_FLAG(5,MEM(HL));ft = 16;}
 
 static void bit_6_A() {BIT_FLAG(6,A);ft = 8;}
 static void bit_6_B() {BIT_FLAG(6,B);ft = 8;}
@@ -732,7 +733,7 @@ static void bit_6_D() {BIT_FLAG(6,D);ft = 8;}
 static void bit_6_E() {BIT_FLAG(6,E);ft = 8;}
 static void bit_6_H() {BIT_FLAG(6,H);ft = 8;}
 static void bit_6_L() {BIT_FLAG(6,L);ft = 8;}
-static void bit_6_HL() {BIT_FLAG(6,MEM[HL]);ft = 16;}
+static void bit_6_HL() {BIT_FLAG(6,MEM(HL));ft = 16;}
 
 static void bit_7_A() {BIT_FLAG(7,A);ft = 8;}
 static void bit_7_B() {BIT_FLAG(7,B);ft = 8;}
@@ -741,7 +742,7 @@ static void bit_7_D() {BIT_FLAG(7,D);ft = 8;}
 static void bit_7_E() {BIT_FLAG(7,E);ft = 8;}
 static void bit_7_H() {BIT_FLAG(7,H);ft = 8;}
 static void bit_7_L() {BIT_FLAG(7,L);ft = 8;}
-static void bit_7_HL() {BIT_FLAG(7,MEM[HL]);ft = 16;}
+static void bit_7_HL() {BIT_FLAG(7,MEM(HL));ft = 16;}
 
 // SET b,r
 // Set bit b in register r; (b = 0 - 7, r = A,B,C,D,E,H,L,(HL))
@@ -756,7 +757,7 @@ static void set_0_D() {BIT_SET(0,D);ft = 8;}
 static void set_0_E() {BIT_SET(0,E);ft = 8;}
 static void set_0_H() {BIT_SET(0,H);ft = 8;}
 static void set_0_L() {BIT_SET(0,L);ft = 8;}
-static void set_0_HL() {BIT_SET(0,MEM[HL]);ft = 16;}
+static void set_0_HL() {BIT_SET(0,MEM(HL));ft = 16;}
 
 static void set_1_A() {BIT_SET(1,A);ft = 8;}
 static void set_1_B() {BIT_SET(1,B);ft = 8;}
@@ -765,7 +766,7 @@ static void set_1_D() {BIT_SET(1,D);ft = 8;}
 static void set_1_E() {BIT_SET(1,E);ft = 8;}
 static void set_1_H() {BIT_SET(1,H);ft = 8;}
 static void set_1_L() {BIT_SET(1,L);ft = 8;}
-static void set_1_HL() {BIT_SET(1,MEM[HL]);ft = 16;}
+static void set_1_HL() {BIT_SET(1,MEM(HL));ft = 16;}
 
 static void set_2_A() {BIT_SET(2,A);ft = 8;}
 static void set_2_B() {BIT_SET(2,B);ft = 8;}
@@ -774,7 +775,7 @@ static void set_2_D() {BIT_SET(2,D);ft = 8;}
 static void set_2_E() {BIT_SET(2,E);ft = 8;}
 static void set_2_H() {BIT_SET(2,H);ft = 8;}
 static void set_2_L() {BIT_SET(2,L);ft = 8;}
-static void set_2_HL() {BIT_SET(2,MEM[HL]);ft = 16;}
+static void set_2_HL() {BIT_SET(2,MEM(HL));ft = 16;}
 
 static void set_3_A() {BIT_SET(3,A);ft = 8;}
 static void set_3_B() {BIT_SET(3,B);ft = 8;}
@@ -783,7 +784,7 @@ static void set_3_D() {BIT_SET(3,D);ft = 8;}
 static void set_3_E() {BIT_SET(3,E);ft = 8;}
 static void set_3_H() {BIT_SET(3,H);ft = 8;}
 static void set_3_L() {BIT_SET(3,L);ft = 8;}
-static void set_3_HL() {BIT_SET(3,MEM[HL]);ft = 16;}
+static void set_3_HL() {BIT_SET(3,MEM(HL));ft = 16;}
 
 static void set_4_A() {BIT_SET(4,A);ft = 8;}
 static void set_4_B() {BIT_SET(4,B);ft = 8;}
@@ -792,7 +793,7 @@ static void set_4_D() {BIT_SET(4,D);ft = 8;}
 static void set_4_E() {BIT_SET(4,E);ft = 8;}
 static void set_4_H() {BIT_SET(4,H);ft = 8;}
 static void set_4_L() {BIT_SET(4,L);ft = 8;}
-static void set_4_HL() {BIT_SET(4,MEM[HL]);ft = 16;}
+static void set_4_HL() {BIT_SET(4,MEM(HL));ft = 16;}
 
 static void set_5_A() {BIT_SET(5,A);ft = 8;}
 static void set_5_B() {BIT_SET(5,B);ft = 8;}
@@ -801,7 +802,7 @@ static void set_5_D() {BIT_SET(5,D);ft = 8;}
 static void set_5_E() {BIT_SET(5,E);ft = 8;}
 static void set_5_H() {BIT_SET(5,H);ft = 8;}
 static void set_5_L() {BIT_SET(5,L);ft = 8;}
-static void set_5_HL() {BIT_SET(5,MEM[HL]);ft = 16;}
+static void set_5_HL() {BIT_SET(5,MEM(HL));ft = 16;}
 
 static void set_6_A() {BIT_SET(6,A);ft = 8;}
 static void set_6_B() {BIT_SET(6,B);ft = 8;}
@@ -810,7 +811,7 @@ static void set_6_D() {BIT_SET(6,D);ft = 8;}
 static void set_6_E() {BIT_SET(6,E);ft = 8;}
 static void set_6_H() {BIT_SET(6,H);ft = 8;}
 static void set_6_L() {BIT_SET(6,L);ft = 8;}
-static void set_6_HL() {BIT_SET(6,MEM[HL]);ft = 16;}
+static void set_6_HL() {BIT_SET(6,MEM(HL));ft = 16;}
 
 static void set_7_A() {BIT_SET(7,A);ft = 8;}
 static void set_7_B() {BIT_SET(7,B);ft = 8;}
@@ -819,7 +820,7 @@ static void set_7_D() {BIT_SET(7,D);ft = 8;}
 static void set_7_E() {BIT_SET(7,E);ft = 8;}
 static void set_7_H() {BIT_SET(7,H);ft = 8;}
 static void set_7_L() {BIT_SET(7,L);ft = 8;}
-static void set_7_HL() {BIT_SET(7,MEM[HL]);ft = 16;}
+static void set_7_HL() {BIT_SET(7,MEM(HL));ft = 16;}
 
 // RES b,r
 // Reset bit b in register r
@@ -834,7 +835,7 @@ static void res_0_D() {BIT_RES(0,D);ft = 8;}
 static void res_0_E() {BIT_RES(0,E);ft = 8;}
 static void res_0_H() {BIT_RES(0,H);ft = 8;}
 static void res_0_L() {BIT_RES(0,L);ft = 8;}
-static void res_0_HL() {BIT_RES(0,MEM[HL]);ft = 16;}
+static void res_0_HL() {BIT_RES(0,MEM(HL));ft = 16;}
 
 static void res_1_A() {BIT_RES(1,A);ft = 8;}
 static void res_1_B() {BIT_RES(1,B);ft = 8;}
@@ -843,7 +844,7 @@ static void res_1_D() {BIT_RES(1,D);ft = 8;}
 static void res_1_E() {BIT_RES(1,E);ft = 8;}
 static void res_1_H() {BIT_RES(1,H);ft = 8;}
 static void res_1_L() {BIT_RES(1,L);ft = 8;}
-static void res_1_HL() {BIT_RES(1,MEM[HL]);ft = 16;}
+static void res_1_HL() {BIT_RES(1,MEM(HL));ft = 16;}
 
 static void res_2_A() {BIT_RES(2,A);ft = 8;}
 static void res_2_B() {BIT_RES(2,B);ft = 8;}
@@ -852,7 +853,7 @@ static void res_2_D() {BIT_RES(2,D);ft = 8;}
 static void res_2_E() {BIT_RES(2,E);ft = 8;}
 static void res_2_H() {BIT_RES(2,H);ft = 8;}
 static void res_2_L() {BIT_RES(2,L);ft = 8;}
-static void res_2_HL() {BIT_RES(2,MEM[HL]);ft = 16;}
+static void res_2_HL() {BIT_RES(2,MEM(HL));ft = 16;}
 
 static void res_3_A() {BIT_RES(3,A);ft = 8;}
 static void res_3_B() {BIT_RES(3,B);ft = 8;}
@@ -861,7 +862,7 @@ static void res_3_D() {BIT_RES(3,D);ft = 8;}
 static void res_3_E() {BIT_RES(3,E);ft = 8;}
 static void res_3_H() {BIT_RES(3,H);ft = 8;}
 static void res_3_L() {BIT_RES(3,L);ft = 8;}
-static void res_3_HL() {BIT_RES(3,MEM[HL]);ft = 16;}
+static void res_3_HL() {BIT_RES(3,MEM(HL));ft = 16;}
 
 static void res_4_A() {BIT_RES(4,A);ft = 8;}
 static void res_4_B() {BIT_RES(4,B);ft = 8;}
@@ -870,7 +871,7 @@ static void res_4_D() {BIT_RES(4,D);ft = 8;}
 static void res_4_E() {BIT_RES(4,E);ft = 8;}
 static void res_4_H() {BIT_RES(4,H);ft = 8;}
 static void res_4_L() {BIT_RES(4,L);ft = 8;}
-static void res_4_HL() {BIT_RES(4,MEM[HL]);ft = 16;}
+static void res_4_HL() {BIT_RES(4,MEM(HL));ft = 16;}
 
 static void res_5_A() {BIT_RES(5,A);ft = 8;}
 static void res_5_B() {BIT_RES(5,B);ft = 8;}
@@ -879,7 +880,7 @@ static void res_5_D() {BIT_RES(5,D);ft = 8;}
 static void res_5_E() {BIT_RES(5,E);ft = 8;}
 static void res_5_H() {BIT_RES(5,H);ft = 8;}
 static void res_5_L() {BIT_RES(5,L);ft = 8;}
-static void res_5_HL() {BIT_RES(5,MEM[HL]);ft = 16;}
+static void res_5_HL() {BIT_RES(5,MEM(HL));ft = 16;}
 
 static void res_6_A() {BIT_RES(6,A);ft = 8;}
 static void res_6_B() {BIT_RES(6,B);ft = 8;}
@@ -888,7 +889,7 @@ static void res_6_D() {BIT_RES(6,D);ft = 8;}
 static void res_6_E() {BIT_RES(6,E);ft = 8;}
 static void res_6_H() {BIT_RES(6,H);ft = 8;}
 static void res_6_L() {BIT_RES(6,L);ft = 8;}
-static void res_6_HL() {BIT_RES(6,MEM[HL]);ft = 16;}
+static void res_6_HL() {BIT_RES(6,MEM(HL));ft = 16;}
 
 static void res_7_A() {BIT_RES(7,A);ft = 8;}
 static void res_7_B() {BIT_RES(7,B);ft = 8;}
@@ -897,7 +898,7 @@ static void res_7_D() {BIT_RES(7,D);ft = 8;}
 static void res_7_E() {BIT_RES(7,E);ft = 8;}
 static void res_7_H() {BIT_RES(7,H);ft = 8;}
 static void res_7_L() {BIT_RES(7,L);ft = 8;}
-static void res_7_HL() {BIT_RES(7,MEM[HL]);ft = 16;}
+static void res_7_HL() {BIT_RES(7,MEM(HL));ft = 16;}
 
 // JP nn
 // Jump to address nn; nn = two byte immediate value. (LS byte first.)
@@ -1022,8 +1023,8 @@ static void jr_C() {
 static void call_nn() {
     const unsigned short addr = _d16;
     // SP-=2;
-    MEM[--SP]=(unsigned char)PC>>8;
-    MEM[--SP]=(unsigned char)PC;
+    MEM(--SP)=(unsigned char)PC>>8;
+    MEM(--SP)=(unsigned char)PC;
     PC = addr;
     ft = 24;
 }
@@ -1065,8 +1066,8 @@ static void call_C() {
 // Jump to address $0000 + n.
 // n = $00,$08,$10,$18,$20,$28,$30,$38
 #define RST_(addr) do {\
-    MEM[--SP]=(unsigned char)PC>>8;\
-    MEM[--SP]=(unsigned char)PC;\
+    MEM(--SP)=(unsigned char)PC>>8;\
+    MEM(--SP)=(unsigned char)PC;\
     PC = (addr);\
     ft = 16;\
 } while(0)
@@ -1100,7 +1101,7 @@ static void rst_38h() {
 // Pop two bytes from stack & jump to that address
 
 static void ret() {
-    PC = MEM[SP++] | MEM[SP++] << 8;
+    PC = MEM(SP++) | MEM(SP++) << 8;
     ft = 16;
 }
 
@@ -1173,7 +1174,9 @@ static void (*cb_map[])() = {
 };
 
 static void CB() {
-    cb_map[MEM[PC++]]();
+    cb_map[MEM(PC++)]();
+    ct += ft;
+    ft = 0;
 }
 
 
@@ -1214,7 +1217,7 @@ static void (*op_map[])() = {
 
 
 void exe() {
-    op_map[MEM[PC++]]();
+    op_map[MEM(PC++)]();
     ct += ft;
     ft = 0;
 }
