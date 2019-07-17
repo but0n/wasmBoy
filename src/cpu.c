@@ -543,11 +543,12 @@ static void stop() {isStop=1;ft = 4;}
 
 // DI
 // This instruction disables interrupts but not immediately. Interrupts are disabled after instruction after DI is executed
-static unsigned char IE = 0;
-static void di() {IE=0;ft = 4;}
+static unsigned char IME = 0;
+static void di() {IME=0;ft = 4;}
 // EI
 // Enable interrupts. This intruction enables interrupts but not immediately. Interrupts are enabled after instruction after EI is executed.
-static void ei() {IE=1;ft = 4;}
+// NOTE: 1 machine cycle (+ 1 machine cycle for the effect)
+static void ei() {IME=1;ft = 4;}
 
 
 // NOTE: Rotates & Shifts
@@ -1101,7 +1102,6 @@ static void rst_38h() {
 static void ret() {
     PC = ROM[SP++] | ROM[SP++] << 8;
     ft = 16;
-    // ft = 12; conflict
 }
 
 // RET cc
@@ -1140,14 +1140,44 @@ static void ret_C() {
 // RETI
 // Pop two bytes from stack & jump to that address then enable interrupts
 static void reti() {
-    IE = 1;
+    IME = 1;
     ret();
 }
 
-static void CB() {}
+
+// CB Map
+static void (*cb_map[])() = {
+    // 0x
+    rlc_B, rlc_C, rlc_D, rlc_E, rlc_H, rlc_L, rlc_HL, rlc_A, rrc_B, rrc_C, rrc_D, rrc_E, rrc_H, rrc_L, rrc_HL, rrca,
+    // 1x
+    rl_B, rl_C, rl_D, rl_E, rl_H, rl_L, rl_HL, rl_A, rr_B, rr_C, rr_D, rr_E, rr_H, rr_L, rr_HL, rr_A,
+    // 2x
+    sla_B, sla_C, sla_D, sla_E, sla_H, sla_L, sla_HL, sla_A, sra_B, sra_C, sra_D, sra_E, sra_H, sra_L, sra_HL, sra_A,
+    // 3x
+    swap_B, swap_C, swap_D, swap_E, swap_H, swap_L, swap_HL, swap_A, srl_B, srl_C, srl_D, srl_E, srl_H, srl_L, srl_HL, srl_A,
+    // 4x ~ 7x
+    bit_0_B, bit_0_C, bit_0_D, bit_0_E, bit_0_H, bit_0_L, bit_0_HL, bit_0_A, bit_1_B, bit_1_C, bit_1_D, bit_1_E, bit_1_H, bit_1_L, bit_1_HL, bit_1_A,
+    bit_2_B, bit_2_C, bit_2_D, bit_2_E, bit_2_H, bit_2_L, bit_2_HL, bit_2_A, bit_3_B, bit_3_C, bit_3_D, bit_3_E, bit_3_H, bit_3_L, bit_3_HL, bit_3_A,
+    bit_4_B, bit_4_C, bit_4_D, bit_4_E, bit_4_H, bit_4_L, bit_4_HL, bit_4_A, bit_5_B, bit_5_C, bit_5_D, bit_5_E, bit_5_H, bit_5_L, bit_5_HL, bit_5_A,
+    bit_6_B, bit_6_C, bit_6_D, bit_6_E, bit_6_H, bit_6_L, bit_6_HL, bit_6_A, bit_7_B, bit_7_C, bit_7_D, bit_7_E, bit_7_H, bit_7_L, bit_7_HL, bit_7_A,
+    // 8x ~ Bx
+    res_0_B, res_0_C, res_0_D, res_0_E, res_0_H, res_0_L, res_0_HL, res_0_A, res_1_B, res_1_C, res_1_D, res_1_E, res_1_H, res_1_L, res_1_HL, res_1_A,
+    res_2_B, res_2_C, res_2_D, res_2_E, res_2_H, res_2_L, res_2_HL, res_2_A, res_3_B, res_3_C, res_3_D, res_3_E, res_3_H, res_3_L, res_3_HL, res_3_A,
+    res_4_B, res_4_C, res_4_D, res_4_E, res_4_H, res_4_L, res_4_HL, res_4_A, res_5_B, res_5_C, res_5_D, res_5_E, res_5_H, res_5_L, res_5_HL, res_5_A,
+    res_6_B, res_6_C, res_6_D, res_6_E, res_6_H, res_6_L, res_6_HL, res_6_A, res_7_B, res_7_C, res_7_D, res_7_E, res_7_H, res_7_L, res_7_HL, res_7_A,
+    // Cx ~ Fx
+    set_0_B, set_0_C, set_0_D, set_0_E, set_0_H, set_0_L, set_0_HL, set_0_A, set_1_B, set_1_C, set_1_D, set_1_E, set_1_H, set_1_L, set_1_HL, set_1_A,
+    set_2_B, set_2_C, set_2_D, set_2_E, set_2_H, set_2_L, set_2_HL, set_2_A, set_3_B, set_3_C, set_3_D, set_3_E, set_3_H, set_3_L, set_3_HL, set_3_A,
+    set_4_B, set_4_C, set_4_D, set_4_E, set_4_H, set_4_L, set_4_HL, set_4_A, set_5_B, set_5_C, set_5_D, set_5_E, set_5_H, set_5_L, set_5_HL, set_5_A,
+    set_6_B, set_6_C, set_6_D, set_6_E, set_6_H, set_6_L, set_6_HL, set_6_A, set_7_B, set_7_C, set_7_D, set_7_E, set_7_H, set_7_L, set_7_HL, set_7_A,
+};
+
+static void CB() {
+    cb_map[ROM[PC++]]();
+}
 
 
-void (*op_map[])() = {
+static void (*op_map[])() = {
     // 0x
     nop, ld_BC_d16, ld_BC_A, inc_BC, inc_B, dec_B, ld_B_d8, rlca, ld_a16_SP, add_HL_BC, ld_A_BC, dec_BC, inc_C, dec_C, ld_C_d8, rrca,
     // 1x
@@ -1180,7 +1210,6 @@ void (*op_map[])() = {
     ld_a8_A, pop_HL, ld_rC_A, XX, XX, push_HL, and_d8, rst_20h, add_SP_d8, jp_HL, ld_a16_A, XX, XX, XX, xor_d8, rst_28h,
     // Fx
     ld_A_d8, pop_AF, ld_A_rC, di, XX, push_AF, or_d8, rst_30h, ldhl_SP_d8, ld_SP_HL, ld_A_a16, ei, XX, XX, cp_d8, rst_38h
-
 };
 
 
