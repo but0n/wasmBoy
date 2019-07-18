@@ -53,7 +53,7 @@ typedef struct {
     unsigned char STAT;
     unsigned char SCY;
     unsigned char SCX;
-    unsigned char LX;
+    unsigned char LY;
     unsigned char LYC;
     unsigned char DMA;
     unsigned char BGP;
@@ -86,6 +86,31 @@ typedef struct {
     unsigned char IE;
 } REG_TypeDef;
 
+
+/*******************  Bit definition for STAT register  ********************/
+#define STAT_LCD_MODE       ((unsigned char)0x03)     /*!< Mode[1:0] Flag */
+#define STAT_LYC_STAT       ((unsigned char)0x04)     /*!< Coincidence Flag */
+#define STAT_INTR_M0        ((unsigned char)0x08)     /*!< H-Blank Interrupt Flag */
+#define STAT_INTR_M1        ((unsigned char)0x10)     /*!< V-Blank Interrupt Flag */
+#define STAT_INTR_M2        ((unsigned char)0x20)     /*!< OAM Interrupt Flag */
+#define STAT_INTR_LYC       ((unsigned char)0x40)     /*!< LY Interrupt Flag */
+
+// STAT_LCD_MODE[1:0]
+#define LCD_MODE_HBLANK     ((unsigned char)0x00)   // 00: During H-Blank
+#define LCD_MODE_VBLANK     ((unsigned char)0x01)   // 01: During V-Blank
+#define LCD_MODE_OAM        ((unsigned char)0x02)   // 10: During Searching OAM-RAM
+#define LCD_MODE_TRANS      ((unsigned char)0x03)   // 11: During Transfering Data to LCD Driver
+
+extern unsigned char _bios[0x100];
+extern unsigned char _rom[VRAM_BASE-ROM_BASE];
+extern unsigned char _vram[ERAM_BASE-VRAM_BASE];
+extern unsigned char _eram[RAM_BASE-ERAM_BASE];
+extern unsigned char _ram[OAM_RAM_BASE-RAM_BASE];
+extern unsigned char _oam[IO_BASE-OAM_RAM_BASE];
+extern unsigned char _io[HRAM_BASE-IO_BASE];
+extern unsigned char _hram[TOP_ADDR-HRAM_BASE];
+
+#define IO_Reg  ((REG_TypeDef *) _io)
 
 extern unsigned char *mmu(unsigned short addr);
 

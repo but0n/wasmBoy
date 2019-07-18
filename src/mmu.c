@@ -1,16 +1,13 @@
 #include "mmu.h"
 
-static unsigned char _bios[0x100];
-static unsigned char _rom[VRAM_BASE-ROM_BASE];
-static unsigned char _vram[ERAM_BASE-VRAM_BASE];
-static unsigned char _eram[RAM_BASE-ERAM_BASE];
-static unsigned char _ram[OAM_RAM_BASE-RAM_BASE];
-static unsigned char _oam[IO_BASE-OAM_RAM_BASE];
-static unsigned char _io[HRAM_BASE-IO_BASE];
-static unsigned char _hram[TOP_ADDR-HRAM_BASE];
-
-
-#define IO_Reg  ((REG_TypeDef *) _io)
+unsigned char _bios[0x100];
+unsigned char _rom[VRAM_BASE-ROM_BASE];
+unsigned char _vram[ERAM_BASE-VRAM_BASE];
+unsigned char _eram[RAM_BASE-ERAM_BASE];
+unsigned char _ram[OAM_RAM_BASE-RAM_BASE];
+unsigned char _oam[IO_BASE-OAM_RAM_BASE];
+unsigned char _io[HRAM_BASE-IO_BASE];
+unsigned char _hram[TOP_ADDR-HRAM_BASE];
 
 
 unsigned char *mmu(unsigned short addr) {
