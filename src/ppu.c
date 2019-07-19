@@ -125,13 +125,34 @@ void scanline() {
         unsigned short tile3 = tile_data[ID3][v];
         for(unsigned char p = 0; p < 24; p++) {
             // For each pixel (2 bits)
-            unsigned char color_bit = (tile1 >> ((7-p-u_start)<<1)) & 3 << 1;
-            unsigned char *color = colorLUT[(IO_Reg->BGP >> color_bit) & 3];
+            unsigned char color_bit;
+            unsigned char *color;
+            color_bit = (tile1 >> ((7-p-u_start)<<1)) & 3 << 1;
+            color = colorLUT[(IO_Reg->BGP >> color_bit) & 3];
             // Write color
             texture[liney][pixelCounter][0] = color[0];
             texture[liney][pixelCounter][1] = color[1];
             texture[liney][pixelCounter][2] = color[2];
-            if(++pixelCounter > SCREEN_WIDTH) {
+            pixelCounter++;
+
+            color_bit = (tile2 >> ((7-p-u_start)<<1)) & 3 << 1;
+            color = colorLUT[(IO_Reg->BGP >> color_bit) & 3];
+            // Write color
+            texture[liney][pixelCounter][0] = color[0];
+            texture[liney][pixelCounter][1] = color[1];
+            texture[liney][pixelCounter][2] = color[2];
+            pixelCounter++;
+
+            color_bit = (tile3 >> ((7-p-u_start)<<1)) & 3 << 1;
+            color = colorLUT[(IO_Reg->BGP >> color_bit) & 3];
+            // Write color
+            texture[liney][pixelCounter][0] = color[0];
+            texture[liney][pixelCounter][1] = color[1];
+            texture[liney][pixelCounter][2] = color[2];
+            pixelCounter++;
+
+
+            if(pixelCounter > SCREEN_WIDTH) {
                 return;
             }
         }
