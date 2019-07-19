@@ -101,6 +101,17 @@ typedef struct {
 #define LCD_MODE_OAM        ((unsigned char)0x02)   // 10: During Searching OAM-RAM
 #define LCD_MODE_TRANS      ((unsigned char)0x03)   // 11: During Transfering Data to LCD Driver
 
+/*******************  Bit definition for LCDC register  ********************/
+#define LCDC_BG_EN          ((unsigned char)0x01)     /*!< BG & Window Display Enable */
+#define LCDC_OBJ_EN         ((unsigned char)0x02)     /*!< OBJ (Sprite) Display Enable */
+#define LCDC_OBJ_SIZE       ((unsigned char)0x04)     /*!< OBJ (Sprite) Size (8*8 or 8*16) */
+#define LCDC_BG_MAP         ((unsigned char)0x08)     /*!< BG Tile Map Address Select */
+#define LCDC_TILE_SEL       ((unsigned char)0x10)     /*!< BG & Window Tile Data Select */
+#define LCDC_WIN_EN         ((unsigned char)0x20)     /*!< Window Display Enable */
+#define LCDC_WIN_MAP        ((unsigned char)0x40)     /*!< Window Tile Map Address Select */
+#define LCDC_LCD_EN         ((unsigned char)0x80)     /*!< LCD Control Operation */
+
+
 extern unsigned char _bios[0x100];
 extern unsigned char _rom[VRAM_BASE-ROM_BASE];
 extern unsigned char _vram[ERAM_BASE-VRAM_BASE];

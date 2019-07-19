@@ -1,10 +1,23 @@
 #include "ppu.h"
 #include "mmu.h"
 
+unsigned char texture[144][160][3] = {};
+
+
+// RGB color in linear space
+unsigned char colorLUT[4][3] = {
+    {0, 0, 0},
+    {0.3, 0.3, 0.3},
+    {0.6, 0.6, 0.6},
+    {1, 1, 1},
+};
+
 static unsigned short ppu_clock = 0;
 
 void reset() {
     ppu_clock = 0;
+    // Set up default palette data
+    IO_Reg->BGP = 0b11100100;
 }
 
 // NOTE: PPU mode
@@ -82,4 +95,52 @@ void step(unsigned short clock) {
             }
             break;
     }
+}
+
+void scanline() {
+    // PPU is connect to VRAM directly
+    unsigned short bgmap_offs = ((IO_Reg->LCDC & LCDC_BG_MAP) ? 0x9C00 : 0x9800) - VRAM_BASE;
+
+    unsigned char liney = (IO_Reg->LY + IO_Reg->SCY) & 0xFF;
+    unsigned char bgmapx = IO_Reg->SCX >> 3;
+
+    bgmap_offs += liney >> 3 << 5; // Get line index of current Pixel Tiles (8x8 -> 32x32)
+
+    // Decode tile data UV
+    unsigned char u_start = IO_Reg->SCX & 7;
+    unsigned char v = (IO_Reg->LY + IO_Reg->SCY) & 7;
+
+    unsigned short tile_base = ((IO_Reg->LCDC & LCDC_TILE_SEL) ? 0x8000 : 0x8800) - VRAM_BASE;
+    unsigned short (*tile_data)[8] = &_vram[tile_base]; // 256 x 8 x 2 Bytes
+
+
+    unsigned char pixelCounter = 0;
+    for(unsigned char i = 0; i < SCREEN_TILES;) {
+        // Handle 3 tiles per loop
+        unsigned char ID1 = _vram[bgmap_offs + bgmapx + i++]; // 256 tiles total, mask as 0xFF
+        unsigned char ID2 = _vram[bgmap_offs + bgmapx + i++];
+        unsigned char ID3 = _vram[bgmap_offs + bgmapx + i++];
+        unsigned short tile1 = tile_data[ID1][v];
+        unsigned short tile2 = tile_data[ID2][v];
+        unsigned short tile3 = tile_data[ID3][v];
+        for(unsigned char p = 0; p < 24; p++) {
+            // For each pixel (2 bits)
+            unsigned char color_bit = (tile1 >> ((7-p-u_start)<<1)) & 3 << 1;
+            unsigned char *color = colorLUT[(IO_Reg->BGP >> color_bit) & 3];
+            // Write color
+            texture[liney][pixelCounter][0] = color[0];
+            texture[liney][pixelCounter][1] = color[1];
+            texture[liney][pixelCounter][2] = color[2];
+            if(++pixelCounter > SCREEN_WIDTH) {
+                return;
+            }
+        }
+    }
+
+
+    // unsigned char buffoffs = IO_Reg->LY * SCREEN_SIZE * 4;
+
+
+
+
 }
