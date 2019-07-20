@@ -90,7 +90,7 @@ typedef struct {
     unsigned char x71[5];   // 0x71 ~ 0x75
     unsigned char PCM12;
     unsigned char PCM34;
-    unsigned char x78[86];  // 0x78 ~ 0xFE
+    unsigned char x78[0x87];  // 0x78 ~ 0xFE
     unsigned char IE;
 } REG_TypeDef;
 

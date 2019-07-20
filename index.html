@@ -43,9 +43,9 @@
         cmodule._debug();
 
         // Skip boot rom
-        // for(let i = 0; i < 3 *(0x9FFF - 0x7FFF) + 7 + 0xFA - 0x10; i++) {
-        //     cmodule._step();
-        // }
+        for(let i = 0; i < 3 *(0x9FFF - 0x7FFF) + 7 + 0xFA - 0x10; i++) {
+            cmodule._step();
+        }
 
 // let {Vignetting} = Ashes;
 // let {Bloom} = Ashes;
@@ -134,11 +134,13 @@ async function main() {
     // let root = gltfroot.components.Transform;
     // vec3.scale(root.scale, root.scale, 200);
     // scene.appendChild(gltfroot);
-    setInterval(()=> {
+
+    frame = () => {
         cmodule._frame();
-        debugger
+        // debugger
         floor.isDirty = true;
-    }, 1/30);
+    }
+    // setInterval(()=> frame(), 1/30);
 
 
 }

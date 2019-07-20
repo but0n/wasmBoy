@@ -86,6 +86,7 @@ void cpu_debug() {
     printf("| S - P |\t08:\t%04X\n", cache[4]);
     printf("| P - C |\t0A:\t%04X\n", cache[5]);
     printf("-> Next OP code : %02X\n", MEM(PC));
+    // printf("-> Range : %lX\n", &(IO_Reg->IE) - &(IO_Reg->P1));
     printf("\n");
 }
 
