@@ -14,7 +14,7 @@ unsigned char colorLUT[4][3] = {
 
 static unsigned short ppu_clock = 0;
 
-void reset() {
+void ppu_reset() {
     ppu_clock = 0;
     // Set up default palette data
     IO_Reg->BGP = 0b11100100;
@@ -31,7 +31,7 @@ void reset() {
 
 // 0xFF41 STAT > NOTUSE : INTR_LYC : INTR_M2 : INTR_M1 : INTR_M0 : LYC_STAT : LCD_MODE<1:0>
 
-void step(unsigned short clock) {
+void ppu_step(unsigned short clock) {
 
     ppu_clock += clock;
 
@@ -52,7 +52,7 @@ void step(unsigned short clock) {
                 ppu_clock = 0;
                 IO_Reg->STAT &= ~STAT_LCD_MODE;
                 IO_Reg->STAT |= LCD_MODE_HBLANK;
-                // TODO: transfer scanline
+                scanline();
             }
             break;
 

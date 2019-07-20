@@ -12,9 +12,9 @@
 
 
 extern unsigned char texture[144][160][3];
-extern void reset();
+extern void ppu_reset();
 extern void scanline();
-extern void step(unsigned short clock);
+extern void ppu_step(unsigned short clock);
 
 
 #endif

@@ -1,7 +1,6 @@
 #include "cpu.h"
 #include "mmu.h"
 #include <stdio.h>
-#define WASM_EXPORT __attribute__((visibility("default")))
 
 #define REG_AMOUNT 6
 
@@ -73,9 +72,7 @@ static unsigned short cache[REG_AMOUNT] = {};
     }\
 } while(0)\
 
-WASM_EXPORT
-
-void debug() {
+void cpu_debug() {
     printf("*--------------------------*\n");
     printf("Z	N	H	C	0	0	0	0\n");
     printf("%d	%d	%d	%d	0	0	0	0\n", F_Z, F_N, F_H, F_C);
@@ -91,8 +88,8 @@ void debug() {
 
 
 // 4Mhz
-static unsigned char ft;
-static unsigned char ct;
+unsigned char ft;
+unsigned int ct;
 
 // void (*CB[0x100])() = {};
 
@@ -1216,29 +1213,23 @@ static void (*op_map[])() = {
 };
 
 
-void exe() {
+void cpu_exe() {
     op_map[MEM(PC++)]();
     ct += ft;
     ft = 0;
 }
 
-
-
-
-int main()
-{
-    F = 0xF;
-    A = 0x94;
-    B = 10;
-    C = 0xC;
-    D = 0xD;
-    E = 0xE;
-    H = 0x1;
-    L = 0x2;
-    SP = 0x0F;
-    PC = 0xAAF0;
-    debug();
-    rlca();
-    debug();
-    return 0;
+void cpu_reset() {
+    ft = 0;
+    ct = 0;
+    F = 0x00;
+    A = 0x00;
+    B = 0x00;
+    C = 0x00;
+    D = 0x00;
+    E = 0x00;
+    H = 0x00;
+    L = 0x00;
+    SP = 0x0000;
+    PC = 0x0000;
 }

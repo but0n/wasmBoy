@@ -1,6 +1,8 @@
 #ifndef MMU_H
 #define MMU_H
 
+#define export __attribute__((visibility("default")))
+
 
 // Memory map
 #define ROM_BASE            ((unsigned short)0x0000) /*!< 32kB Cartrigbe ROM base address */
