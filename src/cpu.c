@@ -24,34 +24,34 @@ static unsigned short cache[REG_AMOUNT] = {};
 #define ADDR_PC 5
 
 // 8-bit registers
-#define F   ((unsigned char *)cache)[ADDR_F]
-#define A   ((unsigned char *)cache)[ADDR_A]
-#define B   ((unsigned char *)cache)[ADDR_B]
-#define C   ((unsigned char *)cache)[ADDR_C]
-#define D   ((unsigned char *)cache)[ADDR_D]
-#define E   ((unsigned char *)cache)[ADDR_E]
-#define H   ((unsigned char *)cache)[ADDR_H]
-#define L   ((unsigned char *)cache)[ADDR_L]
+#define F   (((unsigned char *)cache)[ADDR_F])
+#define A   (((unsigned char *)cache)[ADDR_A])
+#define B   (((unsigned char *)cache)[ADDR_B])
+#define C   (((unsigned char *)cache)[ADDR_C])
+#define D   (((unsigned char *)cache)[ADDR_D])
+#define E   (((unsigned char *)cache)[ADDR_E])
+#define H   (((unsigned char *)cache)[ADDR_H])
+#define L   (((unsigned char *)cache)[ADDR_L])
 
 // 16-bit registers
-#define BC  cache[ADDR_BC]
-#define DE  cache[ADDR_DE]
-#define HL  cache[ADDR_HL]
-#define SP  cache[ADDR_SP]  // stack pointer
-#define PC  cache[ADDR_PC]  // program counter
+#define BC  (cache[ADDR_BC])
+#define DE  (cache[ADDR_DE])
+#define HL  (cache[ADDR_HL])
+#define SP  (cache[ADDR_SP])  // stack pointer
+#define PC  (cache[ADDR_PC])  // program counter
 
 // Flag register (F) bits:
 #define F_Z_BIT 7   // Zero Flag
 #define F_N_BIT 6   // Subtract Flag
 #define F_H_BIT 5   // Half Carry Flag
 #define F_C_BIT 4   // Carry Flag
-#define F_Z     F>>F_Z_BIT&0x01
-#define F_N     F>>F_N_BIT&0x01
-#define F_H     F>>F_H_BIT&0x01
-#define F_C     F>>F_C_BIT&0x01
+#define F_Z     (F>>F_Z_BIT&0x01)
+#define F_N     (F>>F_N_BIT&0x01)
+#define F_H     (F>>F_H_BIT&0x01)
+#define F_C     (F>>F_C_BIT&0x01)
 
 #define Flag_zero(n) do {\
-    if(n == 0) {\
+    if((n) == 0) {\
         F |= 1<<F_Z_BIT;\
     }\
 } while(0)
@@ -562,7 +562,7 @@ static void rlca() {swap=A&0x80;A=(A<<1)|(swap>>7);RLCA_FLAG(A);ft = 4;}
 
 // RLA
 // Rotate A left through Carry flag
-static void rla() {swap=A&0x80;A=(A<<1)|(F&0x10>>4);OR_FLAG(A);F|=swap>>3;ft = 4;}
+static void rla() {swap=A&0x80;A=(A<<1)|((F&0x10)>>4);OR_FLAG(A);F|=swap>>3;ft = 4;}
 
 // RRCA
 // Rotate A right. Old bit 0 to Carry flag
@@ -575,7 +575,7 @@ static void rrca() {swap=A&1;A=(A>>1)|(swap<<7);RRCA_FLAG(A);ft = 4;}
 
 // RRA
 // Rotate A right through Carry flag
-static void rra() {swap=A&1;A=(A>>1)|(F&0x10<<3);OR_FLAG(A);F|=swap<<F_C_BIT;ft = 4;}
+static void rra() {swap=A&1;A=(A>>1)|((F&0x10)<<3);OR_FLAG(A);F|=swap<<F_C_BIT;ft = 4;}
 
 //_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=
 // RLC n
@@ -591,14 +591,14 @@ static void rlc_HL() {swap=MEM(HL)&0x80;MEM(HL)=(MEM(HL)<<1)|(swap>>7);RLCA_FLAG
 
 // RL n
 // Rotate n left through Carry flag; (n = A,B,C,D,E,H,L,(HL))
-static void rl_A() {swap=A&0x80;A=(A<<1)|(F&0x10>>4);OR_FLAG(A);F|=swap>>3;ft = 4;}
-static void rl_B() {swap=B&0x80;B=(B<<1)|(F&0x10>>4);OR_FLAG(B);F|=swap>>3;ft = 4;}
-static void rl_C() {swap=C&0x80;C=(C<<1)|(F&0x10>>4);OR_FLAG(C);F|=swap>>3;ft = 4;}
-static void rl_D() {swap=D&0x80;D=(D<<1)|(F&0x10>>4);OR_FLAG(D);F|=swap>>3;ft = 4;}
-static void rl_E() {swap=E&0x80;E=(E<<1)|(F&0x10>>4);OR_FLAG(E);F|=swap>>3;ft = 4;}
-static void rl_H() {swap=H&0x80;H=(H<<1)|(F&0x10>>4);OR_FLAG(H);F|=swap>>3;ft = 4;}
-static void rl_L() {swap=L&0x80;L=(L<<1)|(F&0x10>>4);OR_FLAG(L);F|=swap>>3;ft = 4;}
-static void rl_HL() {swap=MEM(HL)&0x80;MEM(HL)=(MEM(HL)<<1)|(F&0x10>>4);OR_FLAG(MEM(HL));F|=swap>>3;ft = 16;}
+static void rl_A() {swap=A&0x80;A=(A<<1)|((F&0x10)>>4);OR_FLAG(A);F|=swap>>3;ft = 4;}
+static void rl_B() {swap=B&0x80;B=(B<<1)|((F&0x10)>>4);OR_FLAG(B);F|=swap>>3;ft = 4;}
+static void rl_C() {swap=C&0x80;C=(C<<1)|((F&0x10)>>4);OR_FLAG(C);F|=swap>>3;ft = 4;}
+static void rl_D() {swap=D&0x80;D=(D<<1)|((F&0x10)>>4);OR_FLAG(D);F|=swap>>3;ft = 4;}
+static void rl_E() {swap=E&0x80;E=(E<<1)|((F&0x10)>>4);OR_FLAG(E);F|=swap>>3;ft = 4;}
+static void rl_H() {swap=H&0x80;H=(H<<1)|((F&0x10)>>4);OR_FLAG(H);F|=swap>>3;ft = 4;}
+static void rl_L() {swap=L&0x80;L=(L<<1)|((F&0x10)>>4);OR_FLAG(L);F|=swap>>3;ft = 4;}
+static void rl_HL() {swap=MEM(HL)&0x80;MEM(HL)=(MEM(HL)<<1)|((F&0x10)>>4);OR_FLAG(MEM(HL));F|=swap>>3;ft = 16;}
 
 // RRC n
 // Rotate n right. Old bit 0 to Carry flag
@@ -613,14 +613,14 @@ static void rrc_HL() {swap=MEM(HL)&1;MEM(HL)=(MEM(HL)>>1)|(swap<<7);RRCA_FLAG(ME
 
 // RR n
 // Rotate n right through Carry flag
-static void rr_A() {swap=A&1;A=(A>>1)|(F&0x10<<3);OR_FLAG(A);F|=swap<<F_C_BIT;ft = 4;}
-static void rr_B() {swap=B&1;B=(B>>1)|(F&0x10<<3);OR_FLAG(B);F|=swap<<F_C_BIT;ft = 4;}
-static void rr_C() {swap=C&1;C=(C>>1)|(F&0x10<<3);OR_FLAG(C);F|=swap<<F_C_BIT;ft = 4;}
-static void rr_D() {swap=D&1;D=(D>>1)|(F&0x10<<3);OR_FLAG(D);F|=swap<<F_C_BIT;ft = 4;}
-static void rr_E() {swap=E&1;E=(E>>1)|(F&0x10<<3);OR_FLAG(E);F|=swap<<F_C_BIT;ft = 4;}
-static void rr_H() {swap=H&1;H=(H>>1)|(F&0x10<<3);OR_FLAG(H);F|=swap<<F_C_BIT;ft = 4;}
-static void rr_L() {swap=L&1;L=(L>>1)|(F&0x10<<3);OR_FLAG(L);F|=swap<<F_C_BIT;ft = 4;}
-static void rr_HL() {swap=MEM(HL)&1;MEM(HL)=(MEM(HL)>>1)|(F&0x10<<3);OR_FLAG(MEM(HL));F|=swap<<F_C_BIT;ft = 16;}
+static void rr_A() {swap=A&1;A=(A>>1)|((F&0x10)<<3);OR_FLAG(A);F|=swap<<F_C_BIT;ft = 4;}
+static void rr_B() {swap=B&1;B=(B>>1)|((F&0x10)<<3);OR_FLAG(B);F|=swap<<F_C_BIT;ft = 4;}
+static void rr_C() {swap=C&1;C=(C>>1)|((F&0x10)<<3);OR_FLAG(C);F|=swap<<F_C_BIT;ft = 4;}
+static void rr_D() {swap=D&1;D=(D>>1)|((F&0x10)<<3);OR_FLAG(D);F|=swap<<F_C_BIT;ft = 4;}
+static void rr_E() {swap=E&1;E=(E>>1)|((F&0x10)<<3);OR_FLAG(E);F|=swap<<F_C_BIT;ft = 4;}
+static void rr_H() {swap=H&1;H=(H>>1)|((F&0x10)<<3);OR_FLAG(H);F|=swap<<F_C_BIT;ft = 4;}
+static void rr_L() {swap=L&1;L=(L>>1)|((F&0x10)<<3);OR_FLAG(L);F|=swap<<F_C_BIT;ft = 4;}
+static void rr_HL() {swap=MEM(HL)&1;MEM(HL)=(MEM(HL)>>1)|((F&0x10)<<3);OR_FLAG(MEM(HL));F|=swap<<F_C_BIT;ft = 16;}
 
 // SLA n
 // Shift n left into Carry. LSB of n set to 0; (n = A,B,C,D,E,H,L,(HL))
@@ -666,7 +666,7 @@ static void srl_HL() {swap=MEM(HL);MEM(HL)=(MEM(HL)>>1);OR_FLAG(MEM(HL));F|=(swa
 #define BIT_FLAG(b, r) do {\
     F |= 1<<F_H_BIT;\
     F &= ~(1<<F_N_BIT);\
-    Flag_zero(r&~(1<<b));\
+    Flag_zero((r) & ~(1<<(b)));\
 } while(0)
 
 static void bit_0_A() {BIT_FLAG(0,A);ft = 8;}
@@ -910,7 +910,7 @@ static void jp_d16() {PC=_d16;ft=16;}
 
 static void jp_NZ() {
     ft = 12;
-    if(F&0x80 == 0x00) {
+    if((F & 0x80) == 0x00) {
         PC = _d16;
         ft += 4;
     } else {
@@ -919,7 +919,7 @@ static void jp_NZ() {
 }
 static void jp_Z() {
     ft = 12;
-    if(F&0x80 == 0x80) {
+    if((F & 0x80) == 0x80) {
         PC = _d16;
         ft += 4;
     } else {
@@ -928,7 +928,7 @@ static void jp_Z() {
 }
 static void jp_NC() {
     ft = 12;
-    if(F&0x10 == 0x00) {
+    if((F & 0x10) == 0x00) {
         PC = _d16;
         ft += 4;
     } else {
@@ -937,7 +937,7 @@ static void jp_NC() {
 }
 static void jp_C() {
     ft = 12;
-    if(F&0x0 == 0x10) {
+    if((F & 0x0) == 0x10) {
         PC = _d16;
         ft += 4;
     } else {
@@ -966,7 +966,7 @@ static void jr_d8() {
 static void jr_NZ() {
     ft = 8;
     signed char d = _d8;
-    if(F&0x80 == 0x00) {
+    if((F & 0x80) == 0x00) {
         if(d<0) {
             d = ~d + 1;
             PC-=d;
@@ -979,7 +979,7 @@ static void jr_NZ() {
 static void jr_Z() {
     ft = 8;
     signed char d = _d8;
-    if(F&0x80 == 0x80) {
+    if((F & 0x80) == 0x80) {
         if(d<0) {
             d = ~d + 1;
             PC-=d;
@@ -992,7 +992,7 @@ static void jr_Z() {
 static void jr_NC() {
     ft = 8;
     signed char d = _d8;
-    if(F&0x10 == 0x00) {
+    if((F & 0x10) == 0x00) {
         if(d<0) {
             d = ~d + 1;
             PC-=d;
@@ -1005,7 +1005,7 @@ static void jr_NC() {
 static void jr_C() {
     ft = 8;
     signed char d = _d8;
-    if(F&0x0 == 0x10) {
+    if((F & 0x0) == 0x10) {
         if(d<0) {
             d = ~d + 1;
             PC-=d;
@@ -1035,25 +1035,25 @@ static void call_nn() {
 
 static void call_NZ() {
     ft = 12;
-    if(F&0x80 == 0x00) {
+    if((F & 0x80) == 0x00) {
         call_nn();
     }
 }
 static void call_Z() {
     ft = 12;
-    if(F&0x80 == 0x80) {
+    if((F & 0x80) == 0x80) {
         call_nn();
     }
 }
 static void call_NC() {
     ft = 12;
-    if(F&0x10 == 0x00) {
+    if((F & 0x10) == 0x00) {
         call_nn();
     }
 }
 static void call_C() {
     ft = 12;
-    if(F&0x0 == 0x10) {
+    if((F & 0x0) == 0x10) {
         call_nn();
     }
 }
@@ -1107,28 +1107,28 @@ static void ret() {
 // (...)
 static void ret_NZ() {
     ft = 8;
-    if(F&0x80 == 0x00) {
+    if((F & 0x80) == 0x00) {
         ret();
         ft = 20;
     }
 }
 static void ret_Z() {
     ft = 8;
-    if(F&0x80 == 0x80) {
+    if((F & 0x80) == 0x80) {
         ret();
         ft = 20;
     }
 }
 static void ret_NC() {
     ft = 8;
-    if(F&0x10 == 0x00) {
+    if((F & 0x10) == 0x00) {
         ret();
         ft = 20;
     }
 }
 static void ret_C() {
     ft = 8;
-    if(F&0x0 == 0x10) {
+    if((F & 0x0) == 0x10) {
         ret();
         ft = 20;
     }
