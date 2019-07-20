@@ -1,7 +1,12 @@
 #ifndef MMU_H
 #define MMU_H
 
-#define export __attribute__((visibility("default")))
+#ifdef __EMSCRIPTEN__
+    #include <emscripten.h>
+    #define export EMSCRIPTEN_KEEPALIVE
+#else
+    #define export
+#endif
 
 
 // Memory map

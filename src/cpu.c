@@ -83,6 +83,7 @@ void cpu_debug() {
     printf("| H | L |\t06:\t%04X\n", cache[3]);
     printf("| S - P |\t08:\t%04X\n", cache[4]);
     printf("| P - C |\t0A:\t%04X\n", cache[5]);
+    printf("-> Next OP code : %02X\n", MEM(PC));
     printf("\n");
 }
 
@@ -104,8 +105,8 @@ unsigned int ct;
 #define _a16    (MEM(_d16))
 
 static void XX() {
-    const unsigned short loc = PC-1;
-    printf("Unimplemented instruction at $%04X\n", PC);
+    printf("Unimplemented instruction at $%04X\n", PC-1);
+    printf("Code $%04X\n", MEM(PC-1));
 }
 
 // NOTE: 8-Bit Loads
@@ -910,7 +911,7 @@ static void jp_d16() {PC=_d16;ft=16;}
 
 static void jp_NZ() {
     ft = 12;
-    if((F & 0x80) == 0x00) {
+    if((F & 0x80) != 0x00) {
         PC = _d16;
         ft += 4;
     } else {
@@ -928,7 +929,7 @@ static void jp_Z() {
 }
 static void jp_NC() {
     ft = 12;
-    if((F & 0x10) == 0x00) {
+    if((F & 0x10) != 0x00) {
         PC = _d16;
         ft += 4;
     } else {
@@ -966,7 +967,7 @@ static void jr_d8() {
 static void jr_NZ() {
     ft = 8;
     signed char d = _d8;
-    if((F & 0x80) == 0x00) {
+    if((F & 0x80) != 0x00) {
         if(d<0) {
             d = ~d + 1;
             PC-=d;
@@ -992,7 +993,7 @@ static void jr_Z() {
 static void jr_NC() {
     ft = 8;
     signed char d = _d8;
-    if((F & 0x10) == 0x00) {
+    if((F & 0x10) != 0x00) {
         if(d<0) {
             d = ~d + 1;
             PC-=d;
@@ -1035,7 +1036,7 @@ static void call_nn() {
 
 static void call_NZ() {
     ft = 12;
-    if((F & 0x80) == 0x00) {
+    if((F & 0x80) != 0x00) {
         call_nn();
     }
 }
@@ -1047,7 +1048,7 @@ static void call_Z() {
 }
 static void call_NC() {
     ft = 12;
-    if((F & 0x10) == 0x00) {
+    if((F & 0x10) != 0x00) {
         call_nn();
     }
 }
@@ -1107,7 +1108,7 @@ static void ret() {
 // (...)
 static void ret_NZ() {
     ft = 8;
-    if((F & 0x80) == 0x00) {
+    if((F & 0x80) != 0x00) {
         ret();
         ft = 20;
     }
@@ -1121,7 +1122,7 @@ static void ret_Z() {
 }
 static void ret_NC() {
     ft = 8;
-    if((F & 0x10) == 0x00) {
+    if((F & 0x10) != 0x00) {
         ret();
         ft = 20;
     }

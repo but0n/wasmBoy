@@ -1,55 +1,69 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Hello WebAssembly</title>
-    <script>
-        var importObject = {
-            imports: {
-                imported_func: function(arg) {
-                console.log(arg);
-                }
-            }
-        }
-
-        if ('WebAssembly' in window) {
-            fetch('main.wasm')
-                .then(response => response.arrayBuffer())
-                .then(buffer => WebAssembly.instantiate(buffer, importObject))
-                .then(result => {
-                    console.log(result);
-                })
-            // .then(buffer => WebAssembly.compile(buffer))
-            // .then(module => {
-            //     const instance = new WebAssembly.Instance(module);
-            //     console.log(instance.exports.__heap_base);
-            //     console.log(instance.exports.get_heap_base());
-            //     document.getElementById("btn").addEventListener("click", function() {
-            //     var lvalue = document.getElementById("lvalue").value;
-            //     var rvalue = document.getElementById("rvalue").value;
-            //     document.getElementById("result").setAttribute('value', instance.exports.add(lvalue, rvalue));
-            //     }, false);
-            //     });
-        } else {
-            output.value = "Your browser doesn't support Web Assembly. You may need to enable it in your browser's flags.";
-        }
-    // let memory = new WebAssembly.Memory({initial:10, maximum:100});
-    // WebAssembly.instantiate(fetch('main.wasm'), { js: { mem: memory } })
-    //     .then(obj => {
-    //         // var i32 = new Uint32Array(memory.buffer);
-    //         // for (var i = 0; i < 10; i++) {
-    //         // i32[i] = i;
-    //         // }
-    //         // var sum = obj.instance.exports.accumulate(0, 10);
-    //         // console.log(sum);
-    //     });
-    </script>
+    <head>
+        <!-- <link rel="stylesheet" type="text/css" href="res/css/main.css" /> -->
     </head>
+
 <body>
-    <input type="text" id="lvalue" value="1"/> +
-    <input type="text" id="rvalue" value="2"/> =
-    <input type="text" id="result" disabled/>
-    <input type="button" id="btn" value="Run" />
+    <canvas id="screen"></canvas>
 </body>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/ashes3d@0.0.46/build/ashes.main.js"></script> -->
+    <!-- <script src="build/ashes.main.js"></script> -->
+    <script src="build/build.js"></script>
+    <script>
+        cmodule._reset();
+        cmodule._debug();
+        step = () => {
+            cmodule._frame();
+            // cmodule._debug();
+        }
+        for(let i = 0; i < 0xFFFF; i++) {
+            step();
+        }
+        cmodule._debug();
+
+// let { Asset, EntityMgr, Camera, vec3, quat, Screen, OrbitControl, Filter, Shader, Material, QuadMesh, MeshRenderer, Texture, aabb, octree, glsl } = Ashes;
+// let {Vignetting} = Ashes;
+// let {Bloom} = Ashes;
+
+
+
+// let assetRoot = 'https://but0n.github.io/Ashes/'
+// let assetRoot = ''
+// Material.SHADER_PATH = assetRoot + Material.SHADER_PATH;
+
+// let [,cuspath,scale, yoffset, threshold, radiu, intensity] = [,,,,];
+
+// let gltf = assetRoot + 'gltfsamples/BoomBox.glb';
+
+// scale = 1;
+
+// async function main() {
+
+//     let screen = new Screen('#screen');
+//     screen.bgColor = [0.23,0.23,0.23, 1];
+
+
+//     let skybox = await Asset.loadCubemap(assetRoot + 'res/envmap/GoldenGateBridge2/');
+
+//     let scene = EntityMgr.create('root - (Click each bar which has yellow border to toggle visible)');
+
+//     // Camera and controls
+//     let mainCamera = scene.appendChild(EntityMgr.create('camera'));
+//     let cameraTrans = mainCamera.components.Transform;
+//     let cam = mainCamera.addComponent(new Camera(screen.width / screen.height));
+//     vec3.set(cameraTrans.translate, 0, 0, 10);
+
+//     mainCamera.addComponent(new OrbitControl(screen, mainCamera));
+//     // screen.mainCamera = cam;
+
+//     document.querySelector('body').appendChild(scene);
+
+//     let gltfroot = scene.appendChild(await Asset.loadGLTF(gltf, screen, skybox));
+//     let root = gltfroot.components.Transform;
+//     root.translate[1] = yoffset || 0;
+//     vec3.scale(root.scale, root.scale, scale || 200);
+// }
+    // main();
+    </script>
 </html>
