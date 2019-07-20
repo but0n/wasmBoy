@@ -53,6 +53,8 @@ static unsigned short cache[REG_AMOUNT] = {};
 #define Flag_zero(n) do {\
     if((n) == 0) {\
         F |= 1<<F_Z_BIT;\
+    } else {\
+        F &= ~(1<<F_Z_BIT);\
     }\
 } while(0)
 
@@ -667,7 +669,7 @@ static void srl_HL() {swap=MEM(HL);MEM(HL)=(MEM(HL)>>1);OR_FLAG(MEM(HL));F|=(swa
 #define BIT_FLAG(b, r) do {\
     F |= 1<<F_H_BIT;\
     F &= ~(1<<F_N_BIT);\
-    Flag_zero((r) & ~(1<<(b)));\
+    Flag_zero((r) & (1<<(b)));\
 } while(0)
 
 static void bit_0_A() {BIT_FLAG(0,A);ft = 8;}
@@ -911,7 +913,7 @@ static void jp_d16() {PC=_d16;ft=16;}
 
 static void jp_NZ() {
     ft = 12;
-    if((F & 0x80) != 0x00) {
+    if((F & 0x80) == 0x00) {
         PC = _d16;
         ft += 4;
     } else {
@@ -929,7 +931,7 @@ static void jp_Z() {
 }
 static void jp_NC() {
     ft = 12;
-    if((F & 0x10) != 0x00) {
+    if((F & 0x10) == 0x00) {
         PC = _d16;
         ft += 4;
     } else {
@@ -967,7 +969,7 @@ static void jr_d8() {
 static void jr_NZ() {
     ft = 8;
     signed char d = _d8;
-    if((F & 0x80) != 0x00) {
+    if((F & 0x80) == 0x00) {
         if(d<0) {
             d = ~d + 1;
             PC-=d;
@@ -993,7 +995,7 @@ static void jr_Z() {
 static void jr_NC() {
     ft = 8;
     signed char d = _d8;
-    if((F & 0x10) != 0x00) {
+    if((F & 0x10) == 0x00) {
         if(d<0) {
             d = ~d + 1;
             PC-=d;
@@ -1036,7 +1038,7 @@ static void call_nn() {
 
 static void call_NZ() {
     ft = 12;
-    if((F & 0x80) != 0x00) {
+    if((F & 0x80) == 0x00) {
         call_nn();
     }
 }
@@ -1048,7 +1050,7 @@ static void call_Z() {
 }
 static void call_NC() {
     ft = 12;
-    if((F & 0x10) != 0x00) {
+    if((F & 0x10) == 0x00) {
         call_nn();
     }
 }
@@ -1108,7 +1110,7 @@ static void ret() {
 // (...)
 static void ret_NZ() {
     ft = 8;
-    if((F & 0x80) != 0x00) {
+    if((F & 0x80) == 0x00) {
         ret();
         ft = 20;
     }
@@ -1122,7 +1124,7 @@ static void ret_Z() {
 }
 static void ret_NC() {
     ft = 8;
-    if((F & 0x10) != 0x00) {
+    if((F & 0x10) == 0x00) {
         ret();
         ft = 20;
     }
