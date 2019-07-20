@@ -1,6 +1,7 @@
 #include "mmu.h"
+#include "boot.h"
 
-unsigned char _bios[0x100];
+unsigned char _bios[0x100] = BOOT_ROM;
 unsigned char _rom[VRAM_BASE-ROM_BASE];
 unsigned char _vram[ERAM_BASE-VRAM_BASE];
 unsigned char _eram[RAM_BASE-ERAM_BASE];
