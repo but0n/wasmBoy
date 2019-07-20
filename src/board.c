@@ -9,15 +9,21 @@ export void reset() {
     ppu_reset();
 }
 
+export void step() {
+    ct = 0;
+    cpu_exe();
+    ppu_step(ct);
+}
+
 export void frame() {
     ct = 0;
-    while(ct < 1) {
+    while(ct < FRAME_CLOCKS) {
         cpu_exe();
         ppu_step(ct);
     }
 }
 
-export float *getTexture() {
+export unsigned char *getTexture() {
     return texture[0][0];
 }
 

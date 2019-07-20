@@ -14,11 +14,11 @@
         cmodule._reset();
         cmodule._debug();
         step = () => {
-            cmodule._frame();
+            cmodule._step();
             cmodule._debug();
         }
-        // for(let i = 0; i < 0xFFFF; i++) {
-        //     step();
+        // for(let i = 0; i < 0x5FFA; i++) {
+        //     cmodule._frame();
         // }
         cmodule._debug();
 

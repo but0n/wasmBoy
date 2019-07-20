@@ -1,15 +1,15 @@
 #include "ppu.h"
 #include "mmu.h"
 
-float texture[144][160][3] = {};
+unsigned char texture[144][160][3] = {};
 
 
 // RGB color in linear space
-float colorLUT[4][3] = {
+unsigned char colorLUT[4][3] = {
     {0, 0, 0},
-    {0.3, 0.3, 0.3},
-    {0.6, 0.6, 0.6},
-    {1, 1, 1},
+    {76, 76, 76},
+    {153, 153, 153},
+    {255, 255, 255},
 };
 
 static unsigned short ppu_clock = 0;
@@ -121,7 +121,7 @@ void scanline() {
         for(unsigned char p = 0; p < 8; p++) {
             // For each pixel (2 bits)
             unsigned char color_bit;
-            float *color;
+            unsigned char *color;
             color_bit = (tile >> ((7-p-u_start)<<1)) & 3 << 1;
             color = colorLUT[(IO_Reg->BGP >> color_bit) & 3];
             // Write color
