@@ -680,7 +680,7 @@ static void bit_0_D() {BIT_FLAG(0,D);ft = 8;}
 static void bit_0_E() {BIT_FLAG(0,E);ft = 8;}
 static void bit_0_H() {BIT_FLAG(0,H);ft = 8;}
 static void bit_0_L() {BIT_FLAG(0,L);ft = 8;}
-static void bit_0_HL() {BIT_FLAG(0,MEM(HL));ft = 16;}
+static void bit_0_HL() {BIT_FLAG(0,MEM(HL));ft = 12;}
 
 static void bit_1_A() {BIT_FLAG(1,A);ft = 8;}
 static void bit_1_B() {BIT_FLAG(1,B);ft = 8;}
@@ -689,7 +689,7 @@ static void bit_1_D() {BIT_FLAG(1,D);ft = 8;}
 static void bit_1_E() {BIT_FLAG(1,E);ft = 8;}
 static void bit_1_H() {BIT_FLAG(1,H);ft = 8;}
 static void bit_1_L() {BIT_FLAG(1,L);ft = 8;}
-static void bit_1_HL() {BIT_FLAG(1,MEM(HL));ft = 16;}
+static void bit_1_HL() {BIT_FLAG(1,MEM(HL));ft = 12;}
 
 static void bit_2_A() {BIT_FLAG(2,A);ft = 8;}
 static void bit_2_B() {BIT_FLAG(2,B);ft = 8;}
@@ -698,7 +698,7 @@ static void bit_2_D() {BIT_FLAG(2,D);ft = 8;}
 static void bit_2_E() {BIT_FLAG(2,E);ft = 8;}
 static void bit_2_H() {BIT_FLAG(2,H);ft = 8;}
 static void bit_2_L() {BIT_FLAG(2,L);ft = 8;}
-static void bit_2_HL() {BIT_FLAG(2,MEM(HL));ft = 16;}
+static void bit_2_HL() {BIT_FLAG(2,MEM(HL));ft = 12;}
 
 static void bit_3_A() {BIT_FLAG(3,A);ft = 8;}
 static void bit_3_B() {BIT_FLAG(3,B);ft = 8;}
@@ -707,7 +707,7 @@ static void bit_3_D() {BIT_FLAG(3,D);ft = 8;}
 static void bit_3_E() {BIT_FLAG(3,E);ft = 8;}
 static void bit_3_H() {BIT_FLAG(3,H);ft = 8;}
 static void bit_3_L() {BIT_FLAG(3,L);ft = 8;}
-static void bit_3_HL() {BIT_FLAG(3,MEM(HL));ft = 16;}
+static void bit_3_HL() {BIT_FLAG(3,MEM(HL));ft = 12;}
 
 static void bit_4_A() {BIT_FLAG(4,A);ft = 8;}
 static void bit_4_B() {BIT_FLAG(4,B);ft = 8;}
@@ -716,7 +716,7 @@ static void bit_4_D() {BIT_FLAG(4,D);ft = 8;}
 static void bit_4_E() {BIT_FLAG(4,E);ft = 8;}
 static void bit_4_H() {BIT_FLAG(4,H);ft = 8;}
 static void bit_4_L() {BIT_FLAG(4,L);ft = 8;}
-static void bit_4_HL() {BIT_FLAG(4,MEM(HL));ft = 16;}
+static void bit_4_HL() {BIT_FLAG(4,MEM(HL));ft = 12;}
 
 static void bit_5_A() {BIT_FLAG(5,A);ft = 8;}
 static void bit_5_B() {BIT_FLAG(5,B);ft = 8;}
@@ -725,7 +725,7 @@ static void bit_5_D() {BIT_FLAG(5,D);ft = 8;}
 static void bit_5_E() {BIT_FLAG(5,E);ft = 8;}
 static void bit_5_H() {BIT_FLAG(5,H);ft = 8;}
 static void bit_5_L() {BIT_FLAG(5,L);ft = 8;}
-static void bit_5_HL() {BIT_FLAG(5,MEM(HL));ft = 16;}
+static void bit_5_HL() {BIT_FLAG(5,MEM(HL));ft = 12;}
 
 static void bit_6_A() {BIT_FLAG(6,A);ft = 8;}
 static void bit_6_B() {BIT_FLAG(6,B);ft = 8;}
@@ -734,7 +734,7 @@ static void bit_6_D() {BIT_FLAG(6,D);ft = 8;}
 static void bit_6_E() {BIT_FLAG(6,E);ft = 8;}
 static void bit_6_H() {BIT_FLAG(6,H);ft = 8;}
 static void bit_6_L() {BIT_FLAG(6,L);ft = 8;}
-static void bit_6_HL() {BIT_FLAG(6,MEM(HL));ft = 16;}
+static void bit_6_HL() {BIT_FLAG(6,MEM(HL));ft = 12;}
 
 static void bit_7_A() {BIT_FLAG(7,A);ft = 8;}
 static void bit_7_B() {BIT_FLAG(7,B);ft = 8;}
@@ -743,7 +743,7 @@ static void bit_7_D() {BIT_FLAG(7,D);ft = 8;}
 static void bit_7_E() {BIT_FLAG(7,E);ft = 8;}
 static void bit_7_H() {BIT_FLAG(7,H);ft = 8;}
 static void bit_7_L() {BIT_FLAG(7,L);ft = 8;}
-static void bit_7_HL() {BIT_FLAG(7,MEM(HL));ft = 16;}
+static void bit_7_HL() {BIT_FLAG(7,MEM(HL));ft = 12;}
 
 // SET b,r
 // Set bit b in register r; (b = 0 - 7, r = A,B,C,D,E,H,L,(HL))
