@@ -115,53 +115,23 @@ void scanline() {
 
 
     unsigned char pixelCounter = 0;
-    for(unsigned char i = 0; i < SCREEN_TILES;) {
-        // Handle 3 tiles per loop
-        unsigned char ID1 = _vram[bgmap_offs + bgmapx + i++]; // 256 tiles total, mask as 0xFF
-        unsigned char ID2 = _vram[bgmap_offs + bgmapx + i++];
-        unsigned char ID3 = _vram[bgmap_offs + bgmapx + i++];
-        unsigned short tile1 = tile_data[ID1][v];
-        unsigned short tile2 = tile_data[ID2][v];
-        unsigned short tile3 = tile_data[ID3][v];
-        for(unsigned char p = 0; p < 24; p++) {
+    for(unsigned char i = 0; i < SCREEN_TILES+1; i++) {
+        unsigned char ID = _vram[bgmap_offs + bgmapx + i]; // 256 tiles total, mask as 0xFF
+        unsigned short tile = tile_data[ID][v];
+        for(unsigned char p = 0; p < 8; p++) {
             // For each pixel (2 bits)
             unsigned char color_bit;
             unsigned char *color;
-            color_bit = (tile1 >> ((7-p-u_start)<<1)) & 3 << 1;
+            color_bit = (tile >> ((7-p-u_start)<<1)) & 3 << 1;
             color = colorLUT[(IO_Reg->BGP >> color_bit) & 3];
             // Write color
             texture[liney][pixelCounter][0] = color[0];
             texture[liney][pixelCounter][1] = color[1];
             texture[liney][pixelCounter][2] = color[2];
-            pixelCounter++;
 
-            color_bit = (tile2 >> ((7-p-u_start)<<1)) & 3 << 1;
-            color = colorLUT[(IO_Reg->BGP >> color_bit) & 3];
-            // Write color
-            texture[liney][pixelCounter][0] = color[0];
-            texture[liney][pixelCounter][1] = color[1];
-            texture[liney][pixelCounter][2] = color[2];
-            pixelCounter++;
-
-            color_bit = (tile3 >> ((7-p-u_start)<<1)) & 3 << 1;
-            color = colorLUT[(IO_Reg->BGP >> color_bit) & 3][0];
-            // Write color
-            texture[liney][pixelCounter][0] = color[0];
-            texture[liney][pixelCounter][1] = color[1];
-            texture[liney][pixelCounter][2] = color[2];
-            pixelCounter++;
-
-
-            if(pixelCounter > SCREEN_WIDTH) {
+            if(++pixelCounter > SCREEN_WIDTH) {
                 return;
             }
         }
     }
-
-
-    // unsigned char buffoffs = IO_Reg->LY * SCREEN_SIZE * 4;
-
-
-
-
 }
