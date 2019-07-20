@@ -17,15 +17,16 @@ export void frame() {
     }
 }
 
-export unsigned char *getTexture() {
-    return texture;
+export float *getTexture() {
+    return texture[0][0];
 }
 
 // export void debug() {
 //     cpu_debug();
 // }
 
-void main() {
+int main() {
     reset();
+    return 0;
     // cpu_debug();
 }

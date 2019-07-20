@@ -1,11 +1,11 @@
 #include "ppu.h"
 #include "mmu.h"
 
-unsigned char texture[144][160][3] = {};
+float texture[144][160][3] = {};
 
 
 // RGB color in linear space
-unsigned char colorLUT[4][3] = {
+float colorLUT[4][3] = {
     {0, 0, 0},
     {0.3, 0.3, 0.3},
     {0.6, 0.6, 0.6},
@@ -111,7 +111,7 @@ void scanline() {
     unsigned char v = (IO_Reg->LY + IO_Reg->SCY) & 7;
 
     unsigned short tile_base = ((IO_Reg->LCDC & LCDC_TILE_SEL) ? 0x8000 : 0x8800) - VRAM_BASE;
-    unsigned short (*tile_data)[8] = &_vram[tile_base]; // 256 x 8 x 2 Bytes
+    unsigned short (*tile_data)[8] = (unsigned short (*)[8])&_vram[tile_base]; // 256 x 8 x 2 Bytes
 
 
     unsigned char pixelCounter = 0;
@@ -121,7 +121,7 @@ void scanline() {
         for(unsigned char p = 0; p < 8; p++) {
             // For each pixel (2 bits)
             unsigned char color_bit;
-            unsigned char *color;
+            float *color;
             color_bit = (tile >> ((7-p-u_start)<<1)) & 3 << 1;
             color = colorLUT[(IO_Reg->BGP >> color_bit) & 3];
             // Write color

@@ -16,7 +16,7 @@ unsigned char *mmu(unsigned short addr) {
         // 16kB ROM bank #0
         case 0x0000:
             // BIOS
-            if (IO_Reg->BOOT & 1 == 0) {
+            if ((IO_Reg->BOOT & 1) == 0) {
                 // Boot ROM is active and intercepts accesses to 0x0000-0x00FF
                 return &_bios[addr];
             } else {
@@ -64,4 +64,5 @@ unsigned char *mmu(unsigned short addr) {
                     }
             }
     }
+    return &_rom[addr]; // handle "control may reach end of non-void function [-Wreturn-type]"
 }

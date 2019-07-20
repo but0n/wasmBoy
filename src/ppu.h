@@ -11,7 +11,7 @@
 // typedef unsigned short tileData_16[16];  // 8*16 tile
 
 
-extern unsigned char texture[144][160][3];
+extern float texture[144][160][3];
 extern void ppu_reset();
 extern void scanline();
 extern void ppu_step(unsigned short clock);
