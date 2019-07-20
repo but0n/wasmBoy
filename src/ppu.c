@@ -89,6 +89,7 @@ void ppu_step(unsigned short clock) {
 
                 if (IO_Reg->LY > 153) {
                     // Restart
+                    IO_Reg->LY = 0;
                     IO_Reg->STAT &= ~STAT_LCD_MODE;
                     IO_Reg->STAT |= LCD_MODE_OAM;
                 }
