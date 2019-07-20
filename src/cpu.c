@@ -108,7 +108,7 @@ unsigned int ct;
 
 static void XX() {
     printf("Unimplemented instruction at $%04X\n", PC-1);
-    printf("Code $%04X\n", MEM(PC-1));
+    printf("Code %02X\n", MEM(PC-1));
 }
 
 // NOTE: 8-Bit Loads
@@ -535,21 +535,21 @@ static void nop() {ft = 4;}
 // HALT
 // Power down CPU until an interrupt occurs. Use this when ever possible to reduce energy consumption
 static unsigned char isHalt = 0;
-static void halt() {isHalt=1;ft = 4;}
+static void halt() {isHalt=1;ft = 4;printf("HALT\n");}
 
 // STOP
 // Halt CPU & LCD display until button pressed
 static unsigned char isStop = 0;
-static void stop() {isStop=1;ft = 4;}
+static void stop() {isStop=1;ft = 4;printf("STOP\n");}
 
 // DI
 // This instruction disables interrupts but not immediately. Interrupts are disabled after instruction after DI is executed
 static unsigned char IME = 0;
-static void di() {IME=0;ft = 4;}
+static void di() {IME=0;ft = 4;printf("DI\n");}
 // EI
 // Enable interrupts. This intruction enables interrupts but not immediately. Interrupts are enabled after instruction after EI is executed.
 // NOTE: 1 machine cycle (+ 1 machine cycle for the effect)
-static void ei() {IME=1;ft = 4;}
+static void ei() {IME=1;ft = 4;printf("EI\n");}
 
 
 // NOTE: Rotates & Shifts

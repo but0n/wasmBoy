@@ -27,6 +27,10 @@ export unsigned char *getTexture() {
     return texture[0][0];
 }
 
+export unsigned char *getROM() {
+    return _rom;
+}
+
 export void debug() {
     cpu_debug();
 }

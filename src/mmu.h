@@ -31,6 +31,7 @@ typedef struct {
     unsigned char TMA;
     unsigned char TAC;
     unsigned char x08[7];  // 0x08 ~ 0x0E
+    unsigned char IF;
     unsigned char NR10;
     unsigned char NR11;
     unsigned char NR12;

@@ -4,66 +4,144 @@
         <!-- <link rel="stylesheet" type="text/css" href="res/css/main.css" /> -->
     </head>
 
-<body>
+<body style="margin: 0; padding:0;">
     <canvas id="screen"></canvas>
 </body>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/ashes3d@0.0.46/build/ashes.main.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/ashes3d/build/ashes.main.js"></script>
     <!-- <script src="build/ashes.main.js"></script> -->
     <script src="build/build.js"></script>
     <script>
+        let { Asset, EntityMgr, Camera, vec3, quat, Screen, OrbitControl, Filter, Shader, Material, QuadMesh, MeshRenderer, Texture, aabb, octree, glsl } = Ashes;
+
         cmodule._reset();
         cmodule._debug();
+
+        // Download ROM
+        let rom = 'roms/06-ld.gb';
+        // rom = 'roms/cpu_instrs.gb';
+        rom = 'roms/opus5.gb';
+        Asset.loadBuffer(rom).then(buffer => {
+            let card = new Uint8Array(buffer);
+            // console.log(card);
+            console.log(`ROM Size: ${card.length} Bytes`);
+            let rom_addr = cmodule._getROM();
+            let rom_mirror = cmodule.HEAPU8.subarray(rom_addr, rom_addr + 0x8000);
+            for(let i = 0; i < 0x8000; i++) {
+                rom_mirror[i] = card[i];
+            }
+            console.log(rom_mirror);
+        })
+
         step = () => {
             cmodule._step();
             cmodule._debug();
         }
-        // for(let i = 0; i < 0x5FFA; i++) {
-        //     cmodule._frame();
-        // }
+
+        let tex_base = cmodule._getTexture();
+        let texture = cmodule.HEAPU8.subarray(tex_base, tex_base + 160 * 144 * 3)
+
         cmodule._debug();
 
-// let { Asset, EntityMgr, Camera, vec3, quat, Screen, OrbitControl, Filter, Shader, Material, QuadMesh, MeshRenderer, Texture, aabb, octree, glsl } = Ashes;
+        // Skip boot rom
+        // for(let i = 0; i < 3 *(0x9FFF - 0x7FFF) + 7 + 0xFA - 0x10; i++) {
+        //     cmodule._step();
+        // }
+
 // let {Vignetting} = Ashes;
 // let {Bloom} = Ashes;
 
+let CDN = 'https://but0n.github.io/Ashes/'
+Material.SHADER_PATH = CDN + Material.SHADER_PATH;
 
-
-// let assetRoot = 'https://but0n.github.io/Ashes/'
-// let assetRoot = ''
-// Material.SHADER_PATH = assetRoot + Material.SHADER_PATH;
 
 // let [,cuspath,scale, yoffset, threshold, radiu, intensity] = [,,,,];
 
-// let gltf = assetRoot + 'gltfsamples/BoomBox.glb';
+let gltf = CDN + 'gltfsamples/BoomBox.glb';
 
 // scale = 1;
 
-// async function main() {
+async function main() {
 
-//     let screen = new Screen('#screen');
-//     screen.bgColor = [0.23,0.23,0.23, 1];
+    let screen = new Screen('#screen');
+    screen.bgColor = [0.23,0.23,0.23, 1];
+
+    // let skybox = await Asset.loadCubemap(CDN + 'res/envmap/GoldenGateBridge2/');
+
+    let scene = EntityMgr.create('root - (Click each bar which has yellow border to toggle visible)');
+    document.querySelector('body').appendChild(scene);
+
+    // NOTE: Camera
+    let mainCamera = EntityMgr.create('camera');
+    let cam = mainCamera.addComponent(new Camera(screen.width / screen.height));
+    // Set default position
+    let cameraTrans = mainCamera.components.Transform;
+    vec3.set(cameraTrans.translate, 0, 0, 10);
+    // Attach controler
+    mainCamera.addComponent(new OrbitControl(screen, mainCamera));
 
 
-//     let skybox = await Asset.loadCubemap(assetRoot + 'res/envmap/GoldenGateBridge2/');
+    // Add it to scene
+    scene.appendChild(mainCamera);
 
-//     let scene = EntityMgr.create('root - (Click each bar which has yellow border to toggle visible)');
 
-//     // Camera and controls
-//     let mainCamera = scene.appendChild(EntityMgr.create('camera'));
-//     let cameraTrans = mainCamera.components.Transform;
-//     let cam = mainCamera.addComponent(new Camera(screen.width / screen.height));
-//     vec3.set(cameraTrans.translate, 0, 0, 10);
+    // Create an entity
+    let quad = scene.appendChild(EntityMgr.create('quad'));
 
-//     mainCamera.addComponent(new OrbitControl(screen, mainCamera));
-//     // screen.mainCamera = cam;
+    // Load a material
+    let quadMat = await Asset.LoadMaterial('stylize'); // PBR material
 
-//     document.querySelector('body').appendChild(scene);
+    // Load a texture
+    let floor = new Texture();
+    window['floor'] = floor;
+    // floor.data = new Uint8Array(4 * 256 * 256);
+    // for (let i = 0; i < 256 * 256; i++) {
+    //     floor.data.set([Math.random() * 256, Math.random() * 256, Math.random() * 256, 256], i * 4);
+    // }
+    floor.width = 160;
+    floor.height = 144;
+    floor.sampler.magFilter = WebGL2RenderingContext.NEAREST;
+    floor.sampler.minFilter = WebGL2RenderingContext.NEAREST;
+    floor.sampler.wrapS = WebGL2RenderingContext.CLAMP_TO_EDGE;
+    floor.sampler.wrapT = WebGL2RenderingContext.CLAMP_TO_EDGE;
+    floor.data = texture;
+    floor.internalformat = floor.format = WebGL2RenderingContext.RGB;
 
-//     let gltfroot = scene.appendChild(await Asset.loadGLTF(gltf, screen, skybox));
-//     let root = gltfroot.components.Transform;
-//     root.translate[1] = yoffset || 0;
-//     vec3.scale(root.scale, root.scale, scale || 200);
-// }
-    // main();
+    // let floor = await Asset.loadTexture(CDN + 'res/textures/floor.png', { minFilter: screen.gl.NEAREST_MIPMAP_NEAREST });
+    floor.flipY = true;
+
+    // Attach texture to material we created
+    Material.setTexture(quadMat, 'baseColorTexture', floor);
+    quadMat.shader.macros['HAS_BASECOLOR_MAP'] = '';
+
+
+    // Create a renderer component
+    let quadMR = new MeshRenderer(screen, new QuadMesh(), quadMat);
+
+    // Attach renderer to entity
+    quad.addComponent(quadMR);
+
+    // Set local translate [x, y, z]
+    quad.components.Transform.translate[2] = -1;
+
+    // Set euler angle x, y, z
+    // quat.fromEuler(quad.components.Transform.quaternion, -90, 0, 0);
+
+    // The original size of quad is 2x2
+    // vec3.scale(quad.components.Transform.scale, quad.components.Transform.scale, 9);
+
+    // Load a gltf model
+    // let gltfroot = await Asset.loadGLTF(gltf, screen, skybox);
+    // let root = gltfroot.components.Transform;
+    // vec3.scale(root.scale, root.scale, 200);
+    // scene.appendChild(gltfroot);
+    setInterval(()=> {
+        cmodule._frame();
+        debugger
+        floor.isDirty = true;
+    }, 1/30);
+
+
+}
+    main();
     </script>
 </html>

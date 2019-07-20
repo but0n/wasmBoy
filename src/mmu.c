@@ -1,14 +1,14 @@
 #include "mmu.h"
 #include "boot.h"
 
-export unsigned char _bios[0x100] = BOOT_ROM;
-export unsigned char _rom[VRAM_BASE-ROM_BASE];
-export unsigned char _vram[ERAM_BASE-VRAM_BASE];
-export unsigned char _eram[RAM_BASE-ERAM_BASE];
-export unsigned char _ram[OAM_RAM_BASE-RAM_BASE];
-export unsigned char _oam[IO_BASE-OAM_RAM_BASE];
-export unsigned char _io[HRAM_BASE-IO_BASE];
-export unsigned char _hram[TOP_ADDR-HRAM_BASE];
+unsigned char _bios[0x100] = BOOT_ROM;
+unsigned char _rom[VRAM_BASE-ROM_BASE];
+unsigned char _vram[ERAM_BASE-VRAM_BASE];
+unsigned char _eram[RAM_BASE-ERAM_BASE];
+unsigned char _ram[OAM_RAM_BASE-RAM_BASE];
+unsigned char _oam[IO_BASE-OAM_RAM_BASE];
+unsigned char _io[HRAM_BASE-IO_BASE];
+unsigned char _hram[TOP_ADDR-HRAM_BASE];
 
 
 unsigned char *mmu(unsigned short addr) {

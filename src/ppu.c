@@ -69,7 +69,7 @@ void ppu_step(unsigned short clock) {
                 //  144 and 153 indicate the V-Blank period.
                 //  Writing will reset the counter.
 
-                if (IO_Reg->LY == 143) {
+                if (IO_Reg->LY == 144) {
                     IO_Reg->STAT &= ~STAT_LCD_MODE;
                     IO_Reg->STAT |= LCD_MODE_VBLANK;
                     // TODO: Draw image
