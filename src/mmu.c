@@ -28,8 +28,8 @@ unsigned char *mmu(unsigned short addr, unsigned char W) {
             } else {
                 if (W) {
                     #ifdef DEBUG_LOG
-                    printf("Write BANK\n");
-                    emscripten_debugger();
+                    printf("Write MBC %04X\n", addr);
+                    // emscripten_debugger();
                     #endif
                     // Write
                     return &_mbc[addr];
@@ -42,8 +42,8 @@ unsigned char *mmu(unsigned short addr, unsigned char W) {
         case 0x3000:
             if (W) {
                 #ifdef DEBUG_LOG
-                printf("Write BANK\n");
-                emscripten_debugger();
+                printf("Write MBC %04X\n", addr);
+                // emscripten_debugger();
                 #endif
                 // Write
                 return &_mbc[addr];
@@ -56,19 +56,14 @@ unsigned char *mmu(unsigned short addr, unsigned char W) {
         case 0x7000:
             if (W) {
                 #ifdef DEBUG_LOG
-                printf("Write BANK\n");
-                emscripten_debugger();
+                printf("Write MBC\n");
+                // emscripten_debugger();
                 #endif
                 // Write
                 return &_mbc[addr];
-            } else {
-                #ifdef DEBUG_LOG
-                printf("Read BANK\n");
-                emscripten_debugger();
-                #endif
-                // Read TODO:
-                return &_rom[addr];
             }
+            // Read TODO:
+            return &_rom[addr];
         // 8kB Video RAM
         case 0x8000:
         case 0x9000:
@@ -96,6 +91,10 @@ unsigned char *mmu(unsigned short addr, unsigned char W) {
                         // Internal RAM (HRAM)
                         return &_hram[addr & 0x7F];
                     } else {
+                        #ifdef DEBUG_LOG
+                        printf("IO %s: 0x%04X\n", W ? "W" : "R", addr);
+                        // emscripten_debugger();
+                        #endif
                         // I/O ports
                         return &_io[addr & 0xFF];
                     }
