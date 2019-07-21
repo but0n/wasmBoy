@@ -195,14 +195,14 @@ static void ld_L_HL() {L = MEM(HL);ft = 8;}
 
 
 // LD (HL), r
-static void ld_HL_A() {MEM(HL) = A;ft = 8;}
-static void ld_HL_B() {MEM(HL) = B;ft = 8;}
-static void ld_HL_C() {MEM(HL) = C;ft = 8;}
-static void ld_HL_D() {MEM(HL) = D;ft = 8;}
-static void ld_HL_E() {MEM(HL) = E;ft = 8;}
-static void ld_HL_H() {MEM(HL) = H;ft = 8;}
-static void ld_HL_L() {MEM(HL) = L;ft = 8;}
-static void ld_HL_d8() {MEM(HL) = _d8;ft = 12;}
+static void ld_HL_A() {wMEM(HL) = A;ft = 8;}
+static void ld_HL_B() {wMEM(HL) = B;ft = 8;}
+static void ld_HL_C() {wMEM(HL) = C;ft = 8;}
+static void ld_HL_D() {wMEM(HL) = D;ft = 8;}
+static void ld_HL_E() {wMEM(HL) = E;ft = 8;}
+static void ld_HL_H() {wMEM(HL) = H;ft = 8;}
+static void ld_HL_L() {wMEM(HL) = L;ft = 8;}
+static void ld_HL_d8() {wMEM(HL) = _d8;ft = 12;}
 
 // LD A, n
 // n = A,B,C,D,E,H,L,(BC),(DE),(HL),(nn),#
@@ -214,21 +214,21 @@ static void ld_A_HL() {A = MEM(HL);ft = 8;}
 
 // LD n, A
 static void ld_a16_A() {_a16 = A;ft = 16;}
-static void ld_BC_A() {MEM(BC) = A;ft = 8;}
-static void ld_DE_A() {MEM(DE) = A;ft = 8;}
+static void ld_BC_A() {wMEM(BC) = A;ft = 8;}
+static void ld_DE_A() {wMEM(DE) = A;ft = 8;}
 
 // LD A, (C)
 // Same as: LD A, ($FF00+C)
 static void ld_A_rC() {A = MEM(0xFF00|C);ft = 8;}
 // LD (C), A
-static void ld_rC_A() {MEM(0xFF00|C) = A;ft = 8;}
+static void ld_rC_A() {wMEM(0xFF00|C) = A;ft = 8;}
 
 // LD A, (HL[x])    x: [I]ncrement / [D]ecrement
 static void ld_A_HLD() {A = MEM(HL--);ft = 8;}
 static void ld_A_HLI() {A = MEM(HL++);ft = 8;}
 // LD (HL[x]), A    x: [I]ncrement / [D]ecrement
-static void ld_HLD_A() {MEM(HL--) = A;ft = 8;}
-static void ld_HLI_A() {MEM(HL++) = A;ft = 8;}
+static void ld_HLD_A() {wMEM(HL--) = A;ft = 8;}
+static void ld_HLI_A() {wMEM(HL++) = A;ft = 8;}
 
 // LDH (n), A
 static void ld_a8_A() {_a8 = A;ft = 12;}
@@ -255,10 +255,10 @@ static void ldhl_SP_d8() {HL = SP + _d8;ft = 12;F &= 0x3F;}
 static void ld_a16_SP() {_a16 = SP;ft = 20;}
 
 // PUSH nn
-static void push_AF() {MEM(--SP) = A;MEM(--SP) = F;ft = 16;}
-static void push_BC() {MEM(--SP) = B;MEM(--SP) = C;ft = 16;}
-static void push_DE() {MEM(--SP) = D;MEM(--SP) = E;ft = 16;}
-static void push_HL() {MEM(--SP) = H;MEM(--SP) = L;ft = 16;}
+static void push_AF() {wMEM(--SP) = A;wMEM(--SP) = F;ft = 16;}
+static void push_BC() {wMEM(--SP) = B;wMEM(--SP) = C;ft = 16;}
+static void push_DE() {wMEM(--SP) = D;wMEM(--SP) = E;ft = 16;}
+static void push_HL() {wMEM(--SP) = H;wMEM(--SP) = L;ft = 16;}
 
 // POP nn
 static void pop_AF() {F = MEM(SP++);A = MEM(SP++);ft = 12;}
@@ -433,7 +433,7 @@ static void inc_D() {OR_FLAG(++D);ft = 4;}
 static void inc_E() {OR_FLAG(++E);ft = 4;}
 static void inc_H() {OR_FLAG(++H);ft = 4;}
 static void inc_L() {OR_FLAG(++L);ft = 4;}
-static void inc_rHL() {OR_FLAG(++MEM(HL));ft = 12;}
+static void inc_rHL() {OR_FLAG(++wMEM(HL));ft = 12;}
 
 // DEC n
 // Decrement register n; (n = A,B,C,D,E,H,L,(HL))
@@ -455,7 +455,7 @@ static void dec_D() {DEC_FLAG(--D);ft = 4;}
 static void dec_E() {DEC_FLAG(--E);ft = 4;}
 static void dec_H() {DEC_FLAG(--H);ft = 4;}
 static void dec_L() {DEC_FLAG(--L);ft = 4;}
-static void dec_rHL() {DEC_FLAG(--MEM(HL));ft = 12;}
+static void dec_rHL() {--wMEM(HL);DEC_FLAG(MEM(HL));ft = 12;}
 
 // NOTE: 16-Bit Arithmetic
 
@@ -512,7 +512,7 @@ static void swap_D() {swap=D&0xF0;D=D<<4|swap>>4;OR_FLAG(D);ft = 8;}
 static void swap_E() {swap=E&0xF0;E=E<<4|swap>>4;OR_FLAG(E);ft = 8;}
 static void swap_H() {swap=H&0xF0;H=H<<4|swap>>4;OR_FLAG(H);ft = 8;}
 static void swap_L() {swap=L&0xF0;L=L<<4|swap>>4;OR_FLAG(L);ft = 8;}
-static void swap_HL() {swap=MEM(HL)&0xF0;MEM(HL)=MEM(HL)<<4|swap>>4;OR_FLAG(MEM(HL));ft = 16;}
+static void swap_HL() {swap=MEM(HL)&0xF0;wMEM(HL)=MEM(HL)<<4|swap>>4;OR_FLAG(MEM(HL));ft = 16;}
 
 // DAA TODO:
 
@@ -591,7 +591,7 @@ static void rlc_D() {swap=D&0x80;D=(D<<1)|(swap>>7);RLCA_FLAG(D);ft = 8;}
 static void rlc_E() {swap=E&0x80;E=(E<<1)|(swap>>7);RLCA_FLAG(E);ft = 8;}
 static void rlc_H() {swap=H&0x80;H=(H<<1)|(swap>>7);RLCA_FLAG(H);ft = 8;}
 static void rlc_L() {swap=L&0x80;L=(L<<1)|(swap>>7);RLCA_FLAG(L);ft = 8;}
-static void rlc_HL() {swap=MEM(HL)&0x80;MEM(HL)=(MEM(HL)<<1)|(swap>>7);RLCA_FLAG(MEM(HL));ft = 16;}
+static void rlc_HL() {swap=MEM(HL)&0x80;wMEM(HL)=(MEM(HL)<<1)|(swap>>7);RLCA_FLAG(MEM(HL));ft = 16;}
 
 // RL n
 // Rotate n left through Carry flag; (n = A,B,C,D,E,H,L,(HL))
@@ -602,7 +602,7 @@ static void rl_D() {swap=D&0x80;D=(D<<1)|((F&0x10)>>4);OR_FLAG(D);F|=swap>>3;ft 
 static void rl_E() {swap=E&0x80;E=(E<<1)|((F&0x10)>>4);OR_FLAG(E);F|=swap>>3;ft = 4;}
 static void rl_H() {swap=H&0x80;H=(H<<1)|((F&0x10)>>4);OR_FLAG(H);F|=swap>>3;ft = 4;}
 static void rl_L() {swap=L&0x80;L=(L<<1)|((F&0x10)>>4);OR_FLAG(L);F|=swap>>3;ft = 4;}
-static void rl_HL() {swap=MEM(HL)&0x80;MEM(HL)=(MEM(HL)<<1)|((F&0x10)>>4);OR_FLAG(MEM(HL));F|=swap>>3;ft = 16;}
+static void rl_HL() {swap=MEM(HL)&0x80;wMEM(HL)=(MEM(HL)<<1)|((F&0x10)>>4);OR_FLAG(MEM(HL));F|=swap>>3;ft = 16;}
 
 // RRC n
 // Rotate n right. Old bit 0 to Carry flag
@@ -613,7 +613,7 @@ static void rrc_D() {swap=D&1;D=(D>>1)|(swap<<7);RRCA_FLAG(D);ft = 4;}
 static void rrc_E() {swap=E&1;E=(E>>1)|(swap<<7);RRCA_FLAG(E);ft = 4;}
 static void rrc_H() {swap=H&1;H=(H>>1)|(swap<<7);RRCA_FLAG(H);ft = 4;}
 static void rrc_L() {swap=L&1;L=(L>>1)|(swap<<7);RRCA_FLAG(L);ft = 4;}
-static void rrc_HL() {swap=MEM(HL)&1;MEM(HL)=(MEM(HL)>>1)|(swap<<7);RRCA_FLAG(MEM(HL));ft = 16;}
+static void rrc_HL() {swap=MEM(HL)&1;wMEM(HL)=(MEM(HL)>>1)|(swap<<7);RRCA_FLAG(MEM(HL));ft = 16;}
 
 // RR n
 // Rotate n right through Carry flag
@@ -624,7 +624,7 @@ static void rr_D() {swap=D&1;D=(D>>1)|((F&0x10)<<3);OR_FLAG(D);F|=swap<<F_C_BIT;
 static void rr_E() {swap=E&1;E=(E>>1)|((F&0x10)<<3);OR_FLAG(E);F|=swap<<F_C_BIT;ft = 4;}
 static void rr_H() {swap=H&1;H=(H>>1)|((F&0x10)<<3);OR_FLAG(H);F|=swap<<F_C_BIT;ft = 4;}
 static void rr_L() {swap=L&1;L=(L>>1)|((F&0x10)<<3);OR_FLAG(L);F|=swap<<F_C_BIT;ft = 4;}
-static void rr_HL() {swap=MEM(HL)&1;MEM(HL)=(MEM(HL)>>1)|((F&0x10)<<3);OR_FLAG(MEM(HL));F|=swap<<F_C_BIT;ft = 16;}
+static void rr_HL() {swap=MEM(HL)&1;wMEM(HL)=(MEM(HL)>>1)|((F&0x10)<<3);OR_FLAG(MEM(HL));F|=swap<<F_C_BIT;ft = 16;}
 
 // SLA n
 // Shift n left into Carry. LSB of n set to 0; (n = A,B,C,D,E,H,L,(HL))
@@ -635,7 +635,7 @@ static void sla_D() {swap=D;D=(D<<1);OR_FLAG(D);F|=swap&0x80>>3;ft = 8;}
 static void sla_E() {swap=E;E=(E<<1);OR_FLAG(E);F|=swap&0x80>>3;ft = 8;}
 static void sla_H() {swap=H;H=(H<<1);OR_FLAG(H);F|=swap&0x80>>3;ft = 8;}
 static void sla_L() {swap=L;L=(L<<1);OR_FLAG(L);F|=swap&0x80>>3;ft = 8;}
-static void sla_HL() {swap=MEM(HL);MEM(HL)=(MEM(HL)<<1);OR_FLAG(MEM(HL));F|=swap&0x80>>3;ft = 16;}
+static void sla_HL() {swap=MEM(HL);wMEM(HL)=(MEM(HL)<<1);OR_FLAG(MEM(HL));F|=swap&0x80>>3;ft = 16;}
 
 // SRA n
 // Shift n right into Carry. MSB doesn't change
@@ -646,7 +646,7 @@ static void sra_D() {swap=D;D=(D>>1)|(swap&0x80);OR_FLAG(D);F|=(swap&1)<<F_C_BIT
 static void sra_E() {swap=E;E=(E>>1)|(swap&0x80);OR_FLAG(E);F|=(swap&1)<<F_C_BIT;ft = 8;}
 static void sra_H() {swap=H;H=(H>>1)|(swap&0x80);OR_FLAG(H);F|=(swap&1)<<F_C_BIT;ft = 8;}
 static void sra_L() {swap=L;L=(L>>1)|(swap&0x80);OR_FLAG(L);F|=(swap&1)<<F_C_BIT;ft = 8;}
-static void sra_HL() {swap=MEM(HL);MEM(HL)=(MEM(HL)>>1)|(swap&0x80);OR_FLAG(MEM(HL));F|=(swap&1)<<F_C_BIT;ft = 16;}
+static void sra_HL() {swap=MEM(HL);wMEM(HL)=(MEM(HL)>>1)|(swap&0x80);OR_FLAG(MEM(HL));F|=(swap&1)<<F_C_BIT;ft = 16;}
 
 // SRL n
 // Shift n right into Carry. MSB set to 0
@@ -657,7 +657,7 @@ static void srl_D() {swap=D;D=(D>>1);OR_FLAG(D);F|=(swap&1)<<F_C_BIT;ft = 8;}
 static void srl_E() {swap=E;E=(E>>1);OR_FLAG(E);F|=(swap&1)<<F_C_BIT;ft = 8;}
 static void srl_H() {swap=H;H=(H>>1);OR_FLAG(H);F|=(swap&1)<<F_C_BIT;ft = 8;}
 static void srl_L() {swap=L;L=(L>>1);OR_FLAG(L);F|=(swap&1)<<F_C_BIT;ft = 8;}
-static void srl_HL() {swap=MEM(HL);MEM(HL)=(MEM(HL)>>1);OR_FLAG(MEM(HL));F|=(swap&1)<<F_C_BIT;ft = 16;}
+static void srl_HL() {swap=MEM(HL);wMEM(HL)=(MEM(HL)>>1);OR_FLAG(MEM(HL));F|=(swap&1)<<F_C_BIT;ft = 16;}
 
 
 // BIT b,r
@@ -1024,8 +1024,8 @@ static void jr_C() {
 static void call_nn() {
     const unsigned short addr = _d16;
     // SP-=2;
-    MEM(--SP)=(unsigned char)PC>>8;
-    MEM(--SP)=(unsigned char)PC;
+    wMEM(--SP)=(unsigned char)PC>>8;
+    wMEM(--SP)=(unsigned char)PC;
     PC = addr;
     ft = 24;
 }
@@ -1067,8 +1067,8 @@ static void call_C() {
 // Jump to address $0000 + n.
 // n = $00,$08,$10,$18,$20,$28,$30,$38
 #define RST_(addr) do {\
-    MEM(--SP)=(unsigned char)PC>>8;\
-    MEM(--SP)=(unsigned char)PC;\
+    wMEM(--SP)=(unsigned char)PC>>8;\
+    wMEM(--SP)=(unsigned char)PC;\
     PC = (addr);\
     ft = 16;\
 } while(0)

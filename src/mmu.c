@@ -2,7 +2,7 @@
 #include "boot.h"
 
 unsigned char _bios[0x100] = BOOT_ROM;
-unsigned char _rom[VRAM_BASE-ROM_BASE];
+unsigned char _rom[BANK_SIZE * 128];
 unsigned char _vram[ERAM_BASE-VRAM_BASE];
 unsigned char _eram[RAM_BASE-ERAM_BASE];
 unsigned char _ram[OAM_RAM_BASE-RAM_BASE];
@@ -10,8 +10,10 @@ unsigned char _oam[IO_BASE-OAM_RAM_BASE];
 unsigned char _io[HRAM_BASE-IO_BASE];
 unsigned char _hram[TOP_ADDR-HRAM_BASE];
 
+unsigned char _mbc[BANK_SIZE];
 
-unsigned char *mmu(unsigned short addr) {
+
+unsigned char *mmu(unsigned short addr, unsigned char W) {
     switch (addr & 0xF000) {
         // 16kB ROM bank #0
         case 0x0000:
@@ -26,12 +28,19 @@ unsigned char *mmu(unsigned short addr) {
         case 0x1000:
         case 0x2000:
         case 0x3000:
+            return &_rom[addr];
         // 16kB switchable ROM bank
         case 0x4000:
         case 0x5000:
         case 0x6000:
         case 0x7000:
-            return &_rom[addr];
+            if (W) {
+                // Write
+                return &_mbc[addr - 0x4000];
+            } else {
+                // Read TODO:
+                return &_rom[addr];
+            }
         // 8kB Video RAM
         case 0x8000:
         case 0x9000:

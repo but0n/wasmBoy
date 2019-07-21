@@ -19,7 +19,10 @@
 #define HRAM_BASE           ((unsigned short)0xFF80) /*!< HRAM base address */
 #define TOP_ADDR            ((unsigned short)0xFFFF)
 
-#define MEM(addr) (*mmu(addr))
+#define BANK_SIZE           ((VRAM_BASE-ROM_BASE)/2)
+
+#define MEM(addr)           (*mmu(addr, 0))
+#define wMEM(addr)          (*mmu(addr, 1))
 
 typedef struct {
     unsigned char P1;
@@ -121,7 +124,7 @@ typedef struct {
 
 
 extern unsigned char _bios[0x100];
-extern unsigned char _rom[VRAM_BASE-ROM_BASE];
+extern unsigned char _rom[BANK_SIZE * 128];
 extern unsigned char _vram[ERAM_BASE-VRAM_BASE];
 extern unsigned char _eram[RAM_BASE-ERAM_BASE];
 extern unsigned char _ram[OAM_RAM_BASE-RAM_BASE];
@@ -129,8 +132,10 @@ extern unsigned char _oam[IO_BASE-OAM_RAM_BASE];
 extern unsigned char _io[HRAM_BASE-IO_BASE];
 extern unsigned char _hram[TOP_ADDR-HRAM_BASE];
 
+extern unsigned char _mbc[BANK_SIZE];
+
 #define IO_Reg  ((REG_TypeDef *) _io)
 
-extern unsigned char *mmu(unsigned short addr);
+extern unsigned char *mmu(unsigned short addr, unsigned char W);
 
 #endif
