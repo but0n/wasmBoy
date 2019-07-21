@@ -6,10 +6,10 @@ unsigned char texture[144][160][3] = {};
 
 // RGB color in linear space
 unsigned char colorLUT[4][3] = {
-    {0, 0, 0},
-    {76, 76, 76},
-    {153, 153, 153},
     {255, 255, 255},
+    {153, 153, 153},
+    {76, 76, 76},
+    {0, 0, 0},
 };
 
 static unsigned short ppu_clock = 0;
@@ -18,6 +18,8 @@ void ppu_reset() {
     ppu_clock = 0;
     // Set up default palette data
     IO_Reg->BGP = 0b11100100;
+    IO_Reg->OBP0 = 0b11100100;
+    IO_Reg->OBP1 = 0b11100100;
 }
 
 // NOTE: PPU mode

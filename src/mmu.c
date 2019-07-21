@@ -93,6 +93,9 @@ unsigned char *mmu(unsigned short addr, unsigned char W) {
                     } else {
                         #ifdef DEBUG_LOG
                         printf("IO %s: 0x%04X\n", W ? "W" : "R", addr);
+                        if (addr == 0xFF0F) {
+                            // emscripten_debugger();
+                        }
                         // emscripten_debugger();
                         #endif
                         // I/O ports
