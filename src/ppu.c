@@ -100,8 +100,11 @@ void ppu_step(unsigned short clock) {
     }
 }
 
+void drawtile(unsigned short tile) {
+
+}
+
 void scanline() {
-    // PPU is connect to VRAM directly
     unsigned short bgmap_offs = ((IO_Reg->LCDC & LCDC_BG_MAP) ? 0x9C00 : 0x9800) - VRAM_BASE;
 
     unsigned char liney = (IO_Reg->LY + IO_Reg->SCY) & 0xFF;
@@ -116,10 +119,11 @@ void scanline() {
     unsigned short tile_base = ((IO_Reg->LCDC & LCDC_TILE_SEL) ? 0x8000 : 0x8800) - VRAM_BASE;
     unsigned short (*tile_data)[8] = (unsigned short (*)[8])&_vram[tile_base]; // 256 x 8 x 2 Bytes
 
+    unsigned char *bgmap = &_vram[bgmap_offs];
 
     unsigned char pixelCounter = 0;
     for(unsigned char i = 0; i < SCREEN_TILES+1; i++) {
-        unsigned char ID = _vram[bgmap_offs + bgmapx + i]; // 256 tiles total, mask as 0xFF
+        unsigned char ID = bgmap[(bgmapx + i) & 0x1F]; // 256 tiles total, mask as 0xFF
         unsigned short tile = tile_data[ID][v];
         for(unsigned char p = 0; p < 8; p++) {
             // For each pixel (2 bits)
