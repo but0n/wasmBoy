@@ -18,15 +18,16 @@
 
         // Download ROM
         let rom = 'roms/06-ld.gb';
-        rom = 'roms/cpu_instrs.gb';
         rom = 'roms/opus5.gb';
+        // rom = 'roms/instr_timing.gb';
+        rom = 'roms/Tetris.gb';
         Asset.loadBuffer(rom).then(buffer => {
             let card = new Uint8Array(buffer);
             // console.log(card);
             console.log(`ROM Size: ${card.length} Bytes`);
             let rom_addr = wasmBoy._getROM();
-            let rom_mirror = wasmBoy.HEAPU8.subarray(rom_addr, rom_addr + 0x8000);
-            for(let i = 0; i < 0x8000; i++) {
+            let rom_mirror = wasmBoy.HEAPU8.subarray(rom_addr, rom_addr + card.length);
+            for(let i = 0; i < card.length; i++) {
                 rom_mirror[i] = card[i];
             }
             console.log(rom_mirror);
@@ -36,6 +37,7 @@
         step = () => {
             wasmBoy._step();
             wasmBoy._debug();
+            floor.isDirty = true;
         }
 
         let tex_base = wasmBoy._getTexture();

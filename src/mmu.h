@@ -122,6 +122,13 @@ typedef struct {
 #define LCDC_WIN_MAP        ((unsigned char)0x40)     /*!< Window Tile Map Address Select */
 #define LCDC_LCD_EN         ((unsigned char)0x80)     /*!< LCD Control Operation */
 
+/*******************  Bit definition for IE and IF register  ********************/
+#define IE_VBLANK           ((unsigned char)0x01)     /*!< V-Blank */
+#define IE_STAT             ((unsigned char)0x02)     /*!< LCDC Status */
+#define IE_TIMER            ((unsigned char)0x04)     /*!< Timer Overflow */
+#define IE_SERIAL           ((unsigned char)0x08)     /*!< Serial Transfer Completion */
+#define IE_JOYPAD           ((unsigned char)0x10)     /*!< Joypad */
+
 
 typedef struct {
     unsigned char RST_00[8];

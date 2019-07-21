@@ -78,6 +78,10 @@ void cpu_debug() {
     printf("*--------------------------*\n");
     printf("Z	N	H	C	0	0	0	0\n");
     printf("%d	%d	%d	%d	0	0	0	0\n", F_Z, F_N, F_H, F_C);
+    printf("*-----------:IE:-----------*\n");
+    printf("0	0	0	%d  %d	%d	%d	%d\n", (IO_Reg->IE>>4)&1, (IO_Reg->IE>>3)&1, (IO_Reg->IE>>2)&1, (IO_Reg->IE>>1)&1, (IO_Reg->IE>>0)&1);
+    printf("*-----------:IF:-----------*\n");
+    printf("0	0	0	%d  %d	%d	%d	%d\n", (IO_Reg->IF>>4)&1, (IO_Reg->IF>>3)&1, (IO_Reg->IF>>2)&1, (IO_Reg->IF>>1)&1, (IO_Reg->IF>>0)&1);
     printf("*--------------------------*\n");
     printf("| A | F |\t00:\t%04X\n", cache[0]);
     printf("| B | C |\t02:\t%04X\n", cache[1]);
@@ -543,9 +547,9 @@ static void halt() {isHalt=1;ft = 4;printf("HALT\n");}
 static unsigned char isStop = 0;
 static void stop() {isStop=1;ft = 4;printf("STOP\n");}
 
+static unsigned char IME = 0;
 // DI
 // This instruction disables interrupts but not immediately. Interrupts are disabled after instruction after DI is executed
-static unsigned char IME = 0;
 static void di() {IME=0;ft = 4;printf("DI\n");}
 // EI
 // Enable interrupts. This intruction enables interrupts but not immediately. Interrupts are enabled after instruction after EI is executed.
@@ -1142,8 +1146,8 @@ static void ret_C() {
 // RETI
 // Pop two bytes from stack & jump to that address then enable interrupts
 static void reti() {
-    IME = 1;
     ret();
+    IME = 1;
 }
 
 
@@ -1213,17 +1217,50 @@ static void (*op_map[])() = {
     // Ex
     ld_a8_A, pop_HL, ld_rC_A, XX, XX, push_HL, and_d8, rst_20h, add_SP_d8, jp_HL, ld_a16_A, XX, XX, XX, xor_d8, rst_28h,
     // Fx
-    ld_A_d8, pop_AF, ld_A_rC, di, XX, push_AF, or_d8, rst_30h, ldhl_SP_d8, ld_SP_HL, ld_A_a16, ei, XX, XX, cp_d8, rst_38h
+    ld_A_a8, pop_AF, ld_A_rC, di, XX, push_AF, or_d8, rst_30h, ldhl_SP_d8, ld_SP_HL, ld_A_a16, ei, XX, XX, cp_d8, rst_38h
 };
 
 
 void cpu_exe() {
+
     op_map[MEM(PC++)]();
+
+    // Interrupt handler
+    if (IME && IO_Reg->IE && IO_Reg->IF) {
+        #ifdef DEBUG_LOG
+        printf("Interrupt!\n");
+        // emscripten_debugger();
+        #endif
+        unsigned char flags = IO_Reg->IE & IO_Reg->IF;
+
+        if (flags & IE_VBLANK) {
+            IO_Reg->IF &= ~IE_VBLANK;
+            RST_(0x40);
+            cpu_debug();
+        }if (flags & IE_STAT) {
+            IO_Reg->IF &= ~IE_STAT;
+            RST_(0x48);
+        }
+        if (flags & IE_TIMER) {
+            IO_Reg->IF &= ~IE_TIMER;
+            RST_(0x50);
+        }
+        if (flags & IE_SERIAL) {
+            IO_Reg->IF &= ~IE_SERIAL;
+            RST_(0x58);
+        }
+        if (flags & IE_JOYPAD) {
+            IO_Reg->IF &= ~IE_JOYPAD;
+            RST_(0x60);
+        }
+    }
+
     ct += ft;
     ft = 0;
 }
 
 void cpu_reset() {
+    IME = 1;
     ft = 0;
     ct = 0;
     F = 0x00;

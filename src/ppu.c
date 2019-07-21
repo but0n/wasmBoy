@@ -72,7 +72,7 @@ void ppu_step(unsigned short clock) {
                 if (IO_Reg->LY == 144) {
                     IO_Reg->STAT &= ~STAT_LCD_MODE;
                     IO_Reg->STAT |= LCD_MODE_VBLANK;
-                    // TODO: Draw image
+                    IO_Reg->IF |= IE_VBLANK;
                 } else {
                     IO_Reg->STAT &= ~STAT_LCD_MODE;
                     IO_Reg->STAT |= LCD_MODE_OAM;
@@ -130,7 +130,7 @@ void scanline() {
             texture[liney][pixelCounter][1] = color[1];
             texture[liney][pixelCounter][2] = color[2];
 
-            if(++pixelCounter > SCREEN_WIDTH) {
+            if(++pixelCounter >= SCREEN_WIDTH) {
                 return;
             }
         }
