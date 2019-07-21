@@ -29,7 +29,7 @@
         // Download ROM
         let rom = 'roms/06-ld.gb';
         rom = 'roms/bg_disabled_gbc.gb';
-        // rom = 'roms/Tetris.gb';
+        rom = 'roms/Tetris.gb';
         Asset.loadBuffer(rom).then(buffer => {
             let card = new Uint8Array(buffer);
             // console.log(card);
@@ -149,10 +149,11 @@ async function main() {
 
     frame = () => {
         wasmBoy._frame();
+        // wasmBoy._step();
         // debugger
         floor.isDirty = true;
     }
-    // setInterval(()=> frame(), 1/30);
+    setInterval(()=> frame(), 1/10 * 1000);
 
 
 }

@@ -6,10 +6,10 @@ unsigned char texture[144][160][3] = {};
 
 // RGB color in linear space
 unsigned char colorLUT[4][3] = {
-    {255, 255, 255},
-    {153, 153, 153},
-    {76, 76, 76},
     {0, 0, 0},
+    {76, 76, 76},
+    {153, 153, 153},
+    {255, 255, 255},
 };
 
 static unsigned short ppu_clock = 0;
@@ -20,6 +20,9 @@ void ppu_reset() {
     IO_Reg->BGP = 0b11100100;
     IO_Reg->OBP0 = 0b11100100;
     IO_Reg->OBP1 = 0b11100100;
+
+    IO_Reg->NR52 = 0xF1;
+    IO_Reg->LCDC = 0x91;
 }
 
 // NOTE: PPU mode
@@ -109,6 +112,7 @@ void scanline() {
 
     unsigned char liney = (IO_Reg->LY + IO_Reg->SCY) & 0xFF;
     unsigned char bgmapx = IO_Reg->SCX >> 3;
+    IO_Reg->SCX = liney;
 
     bgmap_offs += liney >> 3 << 5; // Get line index of current Pixel Tiles (8x8 -> 32x32)
 
@@ -126,16 +130,20 @@ void scanline() {
         unsigned char ID = bgmap[(bgmapx + i) & 0x1F]; // 256 tiles total, mask as 0xFF
         unsigned short tile = tile_data[ID][v];
         for(unsigned char p = 0; p < 8; p++) {
+            if(u_start) {
+                u_start--;
+                continue;
+            }
             // For each pixel (2 bits)
             unsigned char color_bit;
             unsigned char *color;
-            color_bit = (tile >> ((7-p-u_start)<<1)) & 3 << 1;
-            color = colorLUT[(IO_Reg->BGP >> color_bit) & 3];
+            tile = 0b0011100100111001;
+            color_bit = ((tile >> ((7-p)<<1)) & 3) << 1;
+            color = &colorLUT[(IO_Reg->BGP >> color_bit) & 3][0];
             // Write color
             texture[liney][pixelCounter][0] = color[0];
             texture[liney][pixelCounter][1] = color[1];
             texture[liney][pixelCounter][2] = color[2];
-
             if(++pixelCounter >= SCREEN_WIDTH) {
                 return;
             }
