@@ -123,6 +123,39 @@ typedef struct {
 #define LCDC_LCD_EN         ((unsigned char)0x80)     /*!< LCD Control Operation */
 
 
+typedef struct {
+    unsigned char RST_00[8];
+    unsigned char RST_08[8];
+    unsigned char RST_10[8];
+    unsigned char RST_18[8];
+    unsigned char RST_20[8];
+    unsigned char RST_28[8];
+    unsigned char RST_30[8];
+    unsigned char RST_38[8];
+    unsigned char RST_40[8];
+    unsigned char RST_48[8];
+    unsigned char RST_50[8];
+    unsigned char RST_58[8];
+    unsigned char RST_60[8];
+    unsigned char x68[0x98];
+
+    unsigned char ENTRY[4];
+    unsigned char LOGO[48];
+    unsigned char TITLE[15];    // Title of the game in UPPER CASE ASCII.
+    unsigned char COLOR_FLAG;   // $80 = Color GB, $00 or other = not Color GB
+    unsigned char LICENS[2];    // licensee code
+    unsigned char MODEL;        // GB/SGB Indicator (00 = GameBoy, 03 = Super GameBoy functions) (Super GameBoy functions won't work if <> $03.)
+    unsigned char CART_TYPE;
+    unsigned char ROM_SIZE;
+    unsigned char RAM_SIZE;
+    unsigned char DEST_CODE;
+    unsigned char LICENS_OLD;
+    unsigned char ROM_VERSION;
+    unsigned char HEADER_SUM;
+    unsigned char GLOBAL_SUM[2];
+} ROM_HEADER_TypeDef;
+
+
 extern unsigned char _bios[0x100];
 extern unsigned char _rom[BANK_SIZE * 128];
 extern unsigned char _vram[ERAM_BASE-VRAM_BASE];
@@ -132,9 +165,10 @@ extern unsigned char _oam[IO_BASE-OAM_RAM_BASE];
 extern unsigned char _io[HRAM_BASE-IO_BASE];
 extern unsigned char _hram[TOP_ADDR-HRAM_BASE];
 
-extern unsigned char _mbc[BANK_SIZE];
+extern unsigned char _mbc[VRAM_BASE-ROM_BASE];
 
-#define IO_Reg  ((REG_TypeDef *) _io)
+#define IO_Reg      ((REG_TypeDef *) _io)
+#define ROM_Header  ((ROM_HEADER_TypeDef *) _rom)
 
 extern unsigned char *mmu(unsigned short addr, unsigned char W);
 

@@ -1,6 +1,10 @@
 #include "mmu.h"
 #include "boot.h"
 
+#ifdef DEBUG_LOG
+#include <stdio.h>
+#endif
+
 unsigned char _bios[0x100] = BOOT_ROM;
 unsigned char _rom[BANK_SIZE * 128];
 unsigned char _vram[ERAM_BASE-VRAM_BASE];
@@ -10,7 +14,7 @@ unsigned char _oam[IO_BASE-OAM_RAM_BASE];
 unsigned char _io[HRAM_BASE-IO_BASE];
 unsigned char _hram[TOP_ADDR-HRAM_BASE];
 
-unsigned char _mbc[BANK_SIZE];
+unsigned char _mbc[VRAM_BASE-ROM_BASE];
 
 
 unsigned char *mmu(unsigned short addr, unsigned char W) {
@@ -22,12 +26,28 @@ unsigned char *mmu(unsigned short addr, unsigned char W) {
                 // Boot ROM is active and intercepts accesses to 0x0000-0x00FF
                 return &_bios[addr];
             } else {
+                if (W) {
+                    #ifdef DEBUG_LOG
+                    printf("Write BANK\n");
+                    emscripten_debugger();
+                    #endif
+                    // Write
+                    return &_mbc[addr];
+                }
                 // Boot ROM is disabled and 0x0000-0x00FF works normally.
                 return &_rom[addr];
             }
         case 0x1000:
         case 0x2000:
         case 0x3000:
+            if (W) {
+                #ifdef DEBUG_LOG
+                printf("Write BANK\n");
+                emscripten_debugger();
+                #endif
+                // Write
+                return &_mbc[addr];
+            }
             return &_rom[addr];
         // 16kB switchable ROM bank
         case 0x4000:
@@ -35,9 +55,17 @@ unsigned char *mmu(unsigned short addr, unsigned char W) {
         case 0x6000:
         case 0x7000:
             if (W) {
+                #ifdef DEBUG_LOG
+                printf("Write BANK\n");
+                emscripten_debugger();
+                #endif
                 // Write
-                return &_mbc[addr - 0x4000];
+                return &_mbc[addr];
             } else {
+                #ifdef DEBUG_LOG
+                printf("Read BANK\n");
+                emscripten_debugger();
+                #endif
                 // Read TODO:
                 return &_rom[addr];
             }

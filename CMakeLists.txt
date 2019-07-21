@@ -1,13 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
 project(WebAssemblyBoy)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s WASM=0 -s ENVIRONMENT=web -s MODULARIZE_INSTANCE=1 -s EXPORT_NAME='cmodule'")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s WASM=0 -s ENVIRONMENT=web -s MODULARIZE_INSTANCE=1 -s EXPORT_NAME='wasmBoy'")
 
+file(GLOB_RECURSE src src/*.c)
+# add_executable(wasmBoy ${src})
+add_executable(wasmBoy-debug ${src})
 
-# include_directories(src/)
-add_executable(build
-    src/cpu.c
-    src/mmu.c
-    src/ppu.c
-    src/board.c
-)
+set_target_properties(wasmBoy-debug PROPERTIES COMPILE_DEFINITIONS "DEBUG_LOG")
