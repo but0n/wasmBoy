@@ -31,6 +31,9 @@ export unsigned char *getTexture() {
 export unsigned char *getROM() {
     return _rom;
 }
+export unsigned char *getBIOS() {
+    return _bios;
+}
 
 export void debug() {
     cpu_debug();

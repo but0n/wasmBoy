@@ -16,10 +16,20 @@
         wasmBoy._reset();
         wasmBoy._debug();
 
+        let bios = 'roms/[BIOS] Nintendo Game Boy Boot ROM (World).gb';
+        Asset.loadBuffer(bios).then(buffer => {
+            let bios = new Uint8Array(buffer);
+            let boot_addr = wasmBoy._getBIOS();
+            let boot_mirror = wasmBoy.HEAPU8.subarray(boot_addr, boot_addr + bios.length);
+            for(let i = 0; i < bios.length; i++) {
+                boot_mirror[i] = bios[i];
+            }
+        })
+
         // Download ROM
         let rom = 'roms/06-ld.gb';
-        // rom = 'roms/instr_timing.gb';
-        rom = 'roms/Tetris.gb';
+        rom = 'roms/bg_disabled_gbc.gb';
+        // rom = 'roms/Tetris.gb';
         Asset.loadBuffer(rom).then(buffer => {
             let card = new Uint8Array(buffer);
             // console.log(card);
@@ -142,7 +152,7 @@ async function main() {
         // debugger
         floor.isDirty = true;
     }
-    setInterval(()=> frame(), 1/30);
+    // setInterval(()=> frame(), 1/30);
 
 
 }
