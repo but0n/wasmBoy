@@ -1034,8 +1034,11 @@ static void jr_C() {
 static void call_nn() {
     const unsigned short addr = _d16;
     // SP-=2;
-    wMEM(--SP)=(unsigned char)PC>>8;
+    wMEM(--SP)=(unsigned char)(PC>>8);
     wMEM(--SP)=(unsigned char)PC;
+    #ifdef DEBUG_LOG
+    printf("[%04X] CALL 0x%04X\n", PC-1-2, addr);
+    #endif
     PC = addr;
     ft = 24;
 }
@@ -1113,6 +1116,9 @@ static void rst_38h() {
 
 static void ret() {
     PC = MEM(SP++) | MEM(SP++) << 8;
+    #ifdef DEBUG_LOG
+    printf("RET 0x%04X\n", PC);
+    #endif
     ft = 16;
 }
 
