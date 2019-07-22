@@ -96,7 +96,7 @@ unsigned char *mmu(unsigned short addr, unsigned char W, unsigned short PC) {
                         if (addr == 0xFF41) {
                             // emscripten_debugger();
                         }
-                        IO_Reg->P1 &= 0xF0;
+                        IO_Reg->P1 = 0xFF;
                         // emscripten_debugger();
                         #endif
                         // I/O ports

@@ -7,8 +7,8 @@ unsigned char texture[144][160][3] = {};
 // RGB color in linear space
 unsigned char colorLUT[4][3] = {
     {255, 255, 255},
-    {153, 153, 153},
-    {76, 76, 76},
+    {200, 200, 200},
+    {32, 32, 32},
     {0, 0, 0},
 };
 
@@ -122,8 +122,10 @@ void scanline() {
 
     unsigned char liney = (IO_Reg->LY + IO_Reg->SCY) & 0xFF;
     unsigned char bgmapx = IO_Reg->SCX >> 3;
+    unsigned char bgmapy = liney >> 3;
+    // unsigned char bgmapy = liney >> 3;
 
-    bgmap_offs += liney >> 3 << 5; // Get line index of current Pixel Tiles (8x8 -> 32x32)
+    // bgmap_offs += liney >> 3 << 5; // Get line index of current Pixel Tiles (8x8 -> 32x32)
 
     // Decode tile data UV
     unsigned char u_start = IO_Reg->SCX & 7;
@@ -132,11 +134,13 @@ void scanline() {
     unsigned short tile_base = ((IO_Reg->LCDC & LCDC_TILE_SEL) ? 0x8000 : 0x8800) - VRAM_BASE;
     unsigned short (*tile_data)[8] = (unsigned short (*)[8])&_vram[tile_base]; // 256 x 8 x 2 Bytes
 
-    unsigned char *bgmap = &_vram[bgmap_offs];
+    // unsigned char *bgmap = &_vram[bgmap_offs];
+    unsigned char (*bgmap)[32] = (unsigned char (*)[32])&_vram[bgmap_offs];
 
     unsigned char pixelCounter = 0;
     for(unsigned char i = 0; i < SCREEN_TILES+1; i++) {
-        unsigned char ID = bgmap[(bgmapx + i) & 0x1F]; // 256 tiles total, mask as 0xFF
+        // unsigned char ID = bgmap[(bgmapx + i) & 0x1F]; // 256 tiles total, mask as 0xFF
+        unsigned char ID = bgmap[bgmapy & 0x1F][(bgmapx + i) & 0x1F]; // 256 tiles total, mask as 0xFF
         unsigned short tile = tile_data[ID][v];
         for(unsigned char p = 0; p < 8; p++) {
             if(u_start) {
@@ -147,7 +151,7 @@ void scanline() {
             unsigned char color_bit;
             unsigned char *color;
 
-            color_bit = ((tile >> ((7-p)<<1)) & 3) << 1;
+            color_bit = ((tile >> ((7-p))) & 3) << 1;
             color = &colorLUT[(IO_Reg->BGP >> color_bit) & 3][0];
             // Write color
             texture[liney][pixelCounter][0] = color[0];
