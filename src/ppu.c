@@ -120,7 +120,7 @@ void drawtile(unsigned short tile) {
 void scanline() {
     unsigned short bgmap_offs = ((IO_Reg->LCDC & LCDC_BG_MAP) ? 0x9C00 : 0x9800) - VRAM_BASE;
 
-    unsigned char liney = (IO_Reg->LY + IO_Reg->SCY) & 0xFF;
+    unsigned char liney = (IO_Reg->LY + IO_Reg->SCY++) & 0xFF;
     unsigned char bgmapx = IO_Reg->SCX >> 3;
     IO_Reg->SCX = liney;
 
