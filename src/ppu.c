@@ -67,6 +67,11 @@ void ppu_step(unsigned short clock) {
                 ppu_clock = 0;
                 // Increase LY register
                 IO_Reg->LY++;
+                if (IO_Reg->LY == IO_Reg->LYC) {
+                    IO_Reg->STAT |= STAT_LYC_STAT;
+                } else {
+                    IO_Reg->STAT &= ~STAT_LYC_STAT;
+                }
                 // The LY indicates the vertical line to which
                 //  the present data is transferred to the LCD
                 //  Driver. The LY can take on any value
@@ -91,6 +96,11 @@ void ppu_step(unsigned short clock) {
                 ppu_clock = 0;
                 // Increase LY register
                 IO_Reg->LY++;
+                if (IO_Reg->LY == IO_Reg->LYC) {
+                    IO_Reg->STAT |= STAT_LYC_STAT;
+                } else {
+                    IO_Reg->STAT &= ~STAT_LYC_STAT;
+                }
 
                 if (IO_Reg->LY > 153) {
                     // Restart
