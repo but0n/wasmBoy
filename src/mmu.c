@@ -17,7 +17,7 @@ unsigned char _hram[TOP_ADDR-HRAM_BASE];
 unsigned char _mbc[VRAM_BASE-ROM_BASE];
 
 
-unsigned char *mmu(unsigned short addr, unsigned char W) {
+unsigned char *mmu(unsigned short addr, unsigned char W, unsigned short PC) {
     switch (addr & 0xF000) {
         // 16kB ROM bank #0
         case 0x0000:
@@ -92,7 +92,7 @@ unsigned char *mmu(unsigned short addr, unsigned char W) {
                         return &_hram[addr & 0x7F];
                     } else {
                         #ifdef DEBUG_LOG
-                        printf("IO %s: 0x%04X\n", W ? "W" : "R", addr);
+                        printf("[%04X] IO %s: 0x%04X\n", PC, W ? "W" : "R", addr);
                         if (addr == 0xFF0F) {
                             // emscripten_debugger();
                         }

@@ -40,6 +40,10 @@ static unsigned short cache[REG_AMOUNT] = {};
 #define SP  (cache[ADDR_SP])  // stack pointer
 #define PC  (cache[ADDR_PC])  // program counter
 
+#define wMEM(addr)      _wMEM(addr, PC)
+#define MEM(addr)       _MEM(addr, PC)
+
+
 // Flag register (F) bits:
 #define F_Z_BIT 7   // Zero Flag
 #define F_N_BIT 6   // Subtract Flag
@@ -1074,7 +1078,7 @@ static void call_C() {
     wMEM(--SP)=(unsigned char)PC>>8;\
     wMEM(--SP)=(unsigned char)PC;\
     PC = (addr);\
-    ft = 16;\
+    ft += 16;\
 } while(0)
 
 static void rst_00h() {
@@ -1237,22 +1241,23 @@ void cpu_exe() {
             IO_Reg->IF &= ~IE_VBLANK;
             RST_(0x40);
             cpu_debug();
-        }if (flags & IE_STAT) {
-            IO_Reg->IF &= ~IE_STAT;
-            RST_(0x48);
         }
-        if (flags & IE_TIMER) {
-            IO_Reg->IF &= ~IE_TIMER;
-            RST_(0x50);
-        }
-        if (flags & IE_SERIAL) {
-            IO_Reg->IF &= ~IE_SERIAL;
-            RST_(0x58);
-        }
-        if (flags & IE_JOYPAD) {
-            IO_Reg->IF &= ~IE_JOYPAD;
-            RST_(0x60);
-        }
+        // if (flags & IE_STAT) {
+        //     IO_Reg->IF &= ~IE_STAT;
+        //     RST_(0x48);
+        // }
+        // if (flags & IE_TIMER) {
+        //     IO_Reg->IF &= ~IE_TIMER;
+        //     RST_(0x50);
+        // }
+        // if (flags & IE_SERIAL) {
+        //     IO_Reg->IF &= ~IE_SERIAL;
+        //     RST_(0x58);
+        // }
+        // if (flags & IE_JOYPAD) {
+        //     IO_Reg->IF &= ~IE_JOYPAD;
+        //     RST_(0x60);
+        // }
     }
 
     ct += ft;

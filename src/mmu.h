@@ -21,8 +21,8 @@
 
 #define BANK_SIZE           ((VRAM_BASE-ROM_BASE)/2)
 
-#define MEM(addr)           (*mmu(addr, 0))
-#define wMEM(addr)          (*mmu(addr, 1))
+#define _MEM(addr, pc)      (*mmu((addr), 0, (pc)))
+#define _wMEM(addr, pc)     (*mmu((addr), 1, (pc)))
 
 typedef struct {
     unsigned char P1;
@@ -177,6 +177,6 @@ extern unsigned char _mbc[VRAM_BASE-ROM_BASE];
 #define IO_Reg      ((REG_TypeDef *) _io)
 #define ROM_Header  ((ROM_HEADER_TypeDef *) _rom)
 
-extern unsigned char *mmu(unsigned short addr, unsigned char W);
+extern unsigned char *mmu(unsigned short addr, unsigned char W, unsigned short PC);
 
 #endif
