@@ -92,8 +92,8 @@ unsigned char *mmu(unsigned short addr, unsigned char W, unsigned short PC) {
                         return &_hram[addr & 0x7F];
                     } else {
                         #ifdef DEBUG_LOG
-                        printf("[%04X] IO %s: 0x%04X\n", PC, W ? "W" : "R", addr);
-                        if (addr == 0xFF0F) {
+                        printf("[%04X] IO %s: 0x%04X %s\n", PC, W ? "W" : "R", addr, IO_Reg->BOOT?"":"BOOT");
+                        if (addr == 0xFF26) {
                             // emscripten_debugger();
                         }
                         IO_Reg->P1 &= 0xF0;

@@ -114,6 +114,8 @@ unsigned int ct;
 #define _d16    (MEM(PC++)|MEM(PC++)<<8)
 #define _a8     (MEM(0xFF00|_d8))
 #define _a16    (MEM(_d16))
+#define _a8w    (wMEM(0xFF00|_d8))  // Write
+#define _a16w   (wMEM(_d16))        // Write
 
 static void XX() {
     printf("Unimplemented instruction at $%04X\n", PC-1);
@@ -221,7 +223,7 @@ static void ld_A_DE() {A = MEM(DE);ft = 8;}
 static void ld_A_HL() {A = MEM(HL);ft = 8;}
 
 // LD n, A
-static void ld_a16_A() {_a16 = A;ft = 16;}
+static void ld_a16_A() {_a16w = A;ft = 16;}
 static void ld_BC_A() {wMEM(BC) = A;ft = 8;}
 static void ld_DE_A() {wMEM(DE) = A;ft = 8;}
 
@@ -239,7 +241,7 @@ static void ld_HLD_A() {wMEM(HL--) = A;ft = 8;}
 static void ld_HLI_A() {wMEM(HL++) = A;ft = 8;}
 
 // LDH (n), A
-static void ld_a8_A() {_a8 = A;ft = 12;}
+static void ld_a8_A() {_a8w = A;ft = 12;}
 // LDH A, (n)
 static void ld_A_a8() {A = _a8;ft = 12;}
 
@@ -260,7 +262,7 @@ static void ld_SP_HL() {SP = HL;ft = 8;}
 static void ldhl_SP_d8() {HL = SP + _d8;ft = 12;F &= 0x3F;}
 
 // LD (nn), SP
-static void ld_a16_SP() {_a16 = SP;ft = 20;}
+static void ld_a16_SP() {_a16w = SP;ft = 20;}
 
 // PUSH nn
 static void push_AF() {wMEM(--SP) = A;wMEM(--SP) = F;ft = 16;}
