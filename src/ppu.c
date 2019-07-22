@@ -6,10 +6,10 @@ unsigned char texture[144][160][3] = {};
 
 // RGB color in linear space
 unsigned char colorLUT[4][3] = {
-    {0, 0, 0},
-    {76, 76, 76},
-    {153, 153, 153},
     {255, 255, 255},
+    {153, 153, 153},
+    {76, 76, 76},
+    {0, 0, 0},
 };
 
 static unsigned short ppu_clock = 0;
@@ -120,7 +120,7 @@ void drawtile(unsigned short tile) {
 void scanline() {
     unsigned short bgmap_offs = ((IO_Reg->LCDC & LCDC_BG_MAP) ? 0x9C00 : 0x9800) - VRAM_BASE;
 
-    unsigned char liney = (IO_Reg->LY + IO_Reg->SCY++) & 0xFF;
+    unsigned char liney = (IO_Reg->LY + IO_Reg->SCY) & 0xFF;
     unsigned char bgmapx = IO_Reg->SCX >> 3;
     IO_Reg->SCX = liney;
 
@@ -147,7 +147,7 @@ void scanline() {
             // For each pixel (2 bits)
             unsigned char color_bit;
             unsigned char *color;
-            tile = 0b0011100100111001;
+
             color_bit = ((tile >> ((7-p)<<1)) & 3) << 1;
             color = &colorLUT[(IO_Reg->BGP >> color_bit) & 3][0];
             // Write color
