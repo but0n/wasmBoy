@@ -101,10 +101,10 @@ typedef struct {
 /*******************  Bit definition for STAT register  ********************/
 #define STAT_LCD_MODE       ((unsigned char)0x03)     /*!< Mode[1:0] Flag */
 #define STAT_LYC_STAT       ((unsigned char)0x04)     /*!< Coincidence Flag */
-#define STAT_INTR_M0        ((unsigned char)0x08)     /*!< H-Blank Interrupt Flag */
-#define STAT_INTR_M1        ((unsigned char)0x10)     /*!< V-Blank Interrupt Flag */
-#define STAT_INTR_M2        ((unsigned char)0x20)     /*!< OAM Interrupt Flag */
-#define STAT_INTR_LYC       ((unsigned char)0x40)     /*!< LY Interrupt Flag */
+#define STAT_INTR_M0        ((unsigned char)0x08)     /*!< H-Blank Interrupt Selection */
+#define STAT_INTR_M1        ((unsigned char)0x10)     /*!< V-Blank Interrupt Selection */
+#define STAT_INTR_M2        ((unsigned char)0x20)     /*!< OAM Interrupt Selection */
+#define STAT_INTR_LYC       ((unsigned char)0x40)     /*!< LYC Interrupt Selection */
 
 // STAT_LCD_MODE[1:0]
 #define LCD_MODE_HBLANK     ((unsigned char)0x00)   // 00: During H-Blank
