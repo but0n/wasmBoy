@@ -122,7 +122,6 @@ void scanline() {
 
     unsigned char liney = (IO_Reg->LY + IO_Reg->SCY) & 0xFF;
     unsigned char bgmapx = IO_Reg->SCX >> 3;
-    IO_Reg->SCX = liney;
 
     bgmap_offs += liney >> 3 << 5; // Get line index of current Pixel Tiles (8x8 -> 32x32)
 
