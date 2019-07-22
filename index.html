@@ -89,7 +89,7 @@ async function main() {
     let cam = mainCamera.addComponent(new Camera(screen.width / screen.height));
     // Set default position
     let cameraTrans = mainCamera.components.Transform;
-    vec3.set(cameraTrans.translate, 0, 0, 10);
+    vec3.set(cameraTrans.translate, 0, 0, 2);
     // Attach controler
     mainCamera.addComponent(new OrbitControl(screen, mainCamera));
 
@@ -135,7 +135,7 @@ async function main() {
     quad.addComponent(quadMR);
 
     // Set local translate [x, y, z]
-    quad.components.Transform.translate[2] = -1;
+    // quad.components.Transform.translate[2] = -1;
 
     // Set euler angle x, y, z
     // quat.fromEuler(quad.components.Transform.quaternion, -90, 0, 0);
