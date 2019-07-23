@@ -94,7 +94,7 @@ typedef struct {
     unsigned char PCM12;
     unsigned char PCM34;
     unsigned char x78[8];  // 0x78 ~ 0x7F
-    unsigned char HRAM[0x7F];  // 0x78 ~ 0xFE
+    unsigned char HRAM[0x7F]; // 0x80 ~ 0xFE
     unsigned char IE;
 } REG_TypeDef;
 
