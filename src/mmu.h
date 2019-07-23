@@ -170,14 +170,14 @@ extern unsigned char _vram[ERAM_BASE-VRAM_BASE];
 extern unsigned char _eram[RAM_BASE-ERAM_BASE];
 extern unsigned char _ram[OAM_RAM_BASE-RAM_BASE];
 extern unsigned char _oam[IO_BASE-OAM_RAM_BASE];
-extern unsigned char _io[HRAM_BASE-IO_BASE];
-extern unsigned char _hram[TOP_ADDR-HRAM_BASE];
+extern unsigned char _io[TOP_ADDR-IO_BASE];
 
 extern unsigned char _mbc[VRAM_BASE-ROM_BASE];
+extern unsigned char dma_trigger;
 
 #define IO_Reg      ((REG_TypeDef *) _io)
 #define ROM_Header  ((ROM_HEADER_TypeDef *) _rom)
 
-extern unsigned char *mmu(unsigned short addr, unsigned char W, unsigned short PC);
+export extern unsigned char *mmu(unsigned short addr, unsigned char W, unsigned short PC);
 
 #endif

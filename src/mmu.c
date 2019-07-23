@@ -11,11 +11,10 @@ unsigned char _vram[ERAM_BASE-VRAM_BASE];
 unsigned char _eram[RAM_BASE-ERAM_BASE];
 unsigned char _ram[OAM_RAM_BASE-RAM_BASE];
 unsigned char _oam[IO_BASE-OAM_RAM_BASE];
-unsigned char _io[HRAM_BASE-IO_BASE];
-unsigned char _hram[TOP_ADDR-HRAM_BASE];
-
+unsigned char _io[TOP_ADDR-IO_BASE];
 unsigned char _mbc[VRAM_BASE-ROM_BASE];
 
+unsigned char dma_trigger = 0;
 
 unsigned char *mmu(unsigned short addr, unsigned char W, unsigned short PC) {
     switch (addr & 0xF000) {
@@ -87,21 +86,27 @@ unsigned char *mmu(unsigned short addr, unsigned char W, unsigned short PC) {
                 case 0xE00: // OAM
                     return &_oam[addr & 0x1FFF];
                 case 0xF00:
-                    if (addr >= HRAM_BASE) {
-                        // Internal RAM (HRAM)
-                        return &_hram[addr & 0x7F];
-                    } else {
-                        #ifdef DEBUG_LOG
+                    #ifdef DEBUG_LOG
+                    // ignore routine function
+                    if (addr < HRAM_BASE && addr != 0xFFFF) {
                         printf("[%04X] IO %s: 0x%04X %s\n", PC, W ? "W" : "R", addr, IO_Reg->BOOT?"":"BOOT");
-                        if (addr == 0xFF41) {
-                            // emscripten_debugger();
-                        }
-                        IO_Reg->P1 = 0xFF;
-                        // emscripten_debugger();
-                        #endif
-                        // I/O ports
-                        return &_io[addr & 0xFF];
                     }
+                    if (addr == 0xFF41) {
+                        // emscripten_debugger();
+                    }
+                    // emscripten_debugger();
+                    #endif
+                    IO_Reg->P1 = 0xFF;
+                    // Handle SFR
+                    if (W) {
+                        switch (addr & 0xFF) {
+                            case 0x46:
+                                dma_trigger = 1;
+                                break;
+                        }
+                    }
+                    // I/O ports
+                    return &_io[addr & 0xFF];
             }
     }
     return &_rom[addr]; // handle "control may reach end of non-void function [-Wreturn-type]"

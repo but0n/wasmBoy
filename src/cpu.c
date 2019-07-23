@@ -1234,14 +1234,28 @@ static void (*op_map[])() = {
 };
 
 
+void dma_handler() {
+    if (dma_trigger == 0)
+        return;
+    #ifdef DEBUG_LOG
+    printf(">>>> DMA Mirror [%04X]\n", IO_Reg->DMA << 8);
+    // emscripten_debugger();
+    #endif
+    for(unsigned char i = 0; i < 0xA0; i++) {
+        _oam[i] = _MEM(IO_Reg->DMA << 8 | i, 0);
+    }
+    dma_trigger = 0;
+}
+
+
 void cpu_exe() {
 
     op_map[MEM(PC++)]();
-
+    dma_handler();
     // Interrupt handler
     if (IME && IO_Reg->IE && IO_Reg->IF) {
         #ifdef DEBUG_LOG
-        printf("Interrupt!\n");
+        printf(">>>> Interrupt! <<<<\n");
         // emscripten_debugger();
         #endif
         unsigned char flags = IO_Reg->IE & IO_Reg->IF;
@@ -1249,7 +1263,6 @@ void cpu_exe() {
         if (flags & IE_VBLANK) {
             IO_Reg->IF &= ~IE_VBLANK;
             RST_(0x40);
-            cpu_debug();
         } else if (flags & IE_STAT) {
             emscripten_debugger();
             IO_Reg->IF &= ~IE_STAT;
