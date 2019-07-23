@@ -1250,11 +1250,11 @@ void cpu_exe() {
             IO_Reg->IF &= ~IE_VBLANK;
             RST_(0x40);
             cpu_debug();
+        } else if (flags & IE_STAT) {
+            emscripten_debugger();
+            IO_Reg->IF &= ~IE_STAT;
+            RST_(0x48);
         }
-        // if (flags & IE_STAT) {
-        //     IO_Reg->IF &= ~IE_STAT;
-        //     RST_(0x48);
-        // }
         // if (flags & IE_TIMER) {
         //     IO_Reg->IF &= ~IE_TIMER;
         //     RST_(0x50);

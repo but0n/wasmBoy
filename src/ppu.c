@@ -58,6 +58,10 @@ void ppu_step(unsigned short clock) {
                 IO_Reg->STAT &= ~STAT_LCD_MODE;
                 IO_Reg->STAT |= LCD_MODE_HBLANK;
                 scanline();
+                // Update Interrupt Flag
+                if (IO_Reg->STAT & STAT_INTR_M0) {
+                    IO_Reg->IF |= IE_STAT;
+                }
             }
             break;
 
@@ -69,6 +73,10 @@ void ppu_step(unsigned short clock) {
                 IO_Reg->LY++;
                 if (IO_Reg->LY == IO_Reg->LYC) {
                     IO_Reg->STAT |= STAT_LYC_STAT;
+                    // Update Interrupt Flag
+                    if (IO_Reg->STAT & STAT_INTR_LYC) {
+                        IO_Reg->IF |= IE_STAT;
+                    }
                 } else {
                     IO_Reg->STAT &= ~STAT_LYC_STAT;
                 }
@@ -83,9 +91,17 @@ void ppu_step(unsigned short clock) {
                     IO_Reg->STAT &= ~STAT_LCD_MODE;
                     IO_Reg->STAT |= LCD_MODE_VBLANK;
                     IO_Reg->IF |= IE_VBLANK;
+                    // Update Interrupt Flag
+                    if (IO_Reg->STAT & STAT_INTR_M1) {
+                        IO_Reg->IF |= IE_STAT;
+                    }
                 } else {
                     IO_Reg->STAT &= ~STAT_LCD_MODE;
                     IO_Reg->STAT |= LCD_MODE_OAM;
+                    // Update Interrupt Flag
+                    if (IO_Reg->STAT & STAT_INTR_M2) {
+                        IO_Reg->IF |= IE_STAT;
+                    }
                 }
             }
             break;
@@ -98,6 +114,10 @@ void ppu_step(unsigned short clock) {
                 IO_Reg->LY++;
                 if (IO_Reg->LY == IO_Reg->LYC) {
                     IO_Reg->STAT |= STAT_LYC_STAT;
+                    // Update Interrupt Flag
+                    if (IO_Reg->STAT & STAT_INTR_LYC) {
+                        IO_Reg->IF |= IE_STAT;
+                    }
                 } else {
                     IO_Reg->STAT &= ~STAT_LYC_STAT;
                 }
@@ -107,6 +127,10 @@ void ppu_step(unsigned short clock) {
                     IO_Reg->LY = 0;
                     IO_Reg->STAT &= ~STAT_LCD_MODE;
                     IO_Reg->STAT |= LCD_MODE_OAM;
+                    // Update Interrupt Flag
+                    if (IO_Reg->STAT & STAT_INTR_M2) {
+                        IO_Reg->IF |= IE_STAT;
+                    }
                 }
             }
             break;
