@@ -8,8 +8,8 @@ unsigned char texture[144][160][3] = {};
 unsigned char colorLUT[4][3] = {
     {255, 255, 255},
     {200, 200, 200},
-    {200, 200, 200},
-    {0, 0, 0},
+    {88, 88, 88},
+    {8, 8, 8},
 };
 
 static unsigned short ppu_clock = 0;
@@ -137,19 +137,16 @@ void scanline() {
     unsigned char pixelCounter = 0;
     for(unsigned char i = 0; i < SCREEN_TILES+1; i++) {
         unsigned char ID = bgmap[bgmapy & 0x1F][(bgmapx + i) & 0x1F]; // 256 tiles total, mask as 0xFF
-        unsigned char tileh = tile_data[ID][v][0];
-        unsigned char tilel = tile_data[ID][v][1];
+        unsigned char *tile = tile_data[ID][v];
         for(unsigned char p = 0; p < 8; p++) {
             if(u_start) {
                 u_start--;
                 continue;
             }
             // For each pixel (2 bits)
-            unsigned char color_bit;
-            unsigned char *color;
 
-            color_bit = ((tileh >> (7 - p) << 1) | (tileh >> (7 - p))) & 3;
-            color = &colorLUT[(IO_Reg->BGP >> (color_bit << 1)) & 3][0];
+            unsigned char color_bit = ((tile[0] >> (7 - p) << 1) & 2) | ((tile[1] >> (7 - p)) & 1);
+            unsigned char *color = colorLUT[(IO_Reg->BGP >> (color_bit << 1)) & 3];
             // Write color
             texture[liney][pixelCounter][0] = color[0];
             texture[liney][pixelCounter][1] = color[1];
