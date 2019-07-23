@@ -2,6 +2,15 @@
 <html>
     <head>
         <!-- <link rel="stylesheet" type="text/css" href="res/css/main.css" /> -->
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            ash-entity {
+                display: none;
+            }
+        </style>
     </head>
 
 <body style="margin: 0; padding:0;">
@@ -25,12 +34,14 @@
 // let {Bloom} = Ashes;
 
 let CDN = 'https://but0n.github.io/Ashes/'
-Material.SHADER_PATH = CDN + Material.SHADER_PATH;
+// Material.SHADER_PATH = CDN + Material.SHADER_PATH;
 
 
 // let [,cuspath,scale, yoffset, threshold, radiu, intensity] = [,,,,];
 
 let gltf = CDN + 'gltfsamples/BoomBox.glb';
+gltf = 'roms/model/gameboy/scene.gltf';
+// gltf = 'roms/model/gameboychallenge/scene.gltf';
 
 // scale = 1;
 
@@ -79,7 +90,7 @@ async function main() {
     let screen = new Screen('#screen');
     screen.bgColor = [0.23,0.23,0.23, 1];
 
-    // let skybox = await Asset.loadCubemap(CDN + 'res/envmap/GoldenGateBridge2/');
+    let skybox = await Asset.loadCubemap('roms/envmap/GoldenGateBridge2/');
 
     let scene = EntityMgr.create('root - (Click each bar which has yellow border to toggle visible)');
     document.querySelector('body').appendChild(scene);
@@ -98,12 +109,18 @@ async function main() {
     scene.appendChild(mainCamera);
 
 
+
+    let commonShader = Screen.platform == 'iOS'
+            ? new Shader(glsl.stylize.vs, glsl.stylize.fs)
+            : new Shader(glsl.stylize2.vs, glsl.stylize2.fs);
+
+
+
     // Create an entity
     let quad = scene.appendChild(EntityMgr.create('quad'));
 
     // Load a material
-    let quadMat = await Asset.LoadMaterial('stylize'); // PBR material
-    quadMat.doubleSided = true;
+    let quadMat = new Material(commonShader, 'stylize', true); // PBR material
     // Load a texture
     let floor = new Texture();
     window['floor'] = floor;
@@ -120,34 +137,46 @@ async function main() {
     floor.data = texture;
     floor.internalformat = floor.format = WebGL2RenderingContext.RGB;
 
-    // let floor = await Asset.loadTexture(CDN + 'res/textures/floor.png', { minFilter: screen.gl.NEAREST_MIPMAP_NEAREST });
     floor.flipY = true;
 
     // Attach texture to material we created
     Material.setTexture(quadMat, 'baseColorTexture', floor);
     quadMat.shader.macros['HAS_BASECOLOR_MAP'] = '';
+    Material.setTexture(quadMat, 'env', skybox);
+    quadMat.shader.macros['HAS_ENV_MAP'] = '';
+    const brdfurl = 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Viewer/master/assets/images/brdfLUT.png';
+    let brdfLUT = await Asset.loadTexture(brdfurl, { minFilter: WebGL2RenderingContext.LINEAR });
+    Material.setTexture(quadMat, 'brdfLUT', Texture.clone(brdfLUT));
+    quadMat.shader.macros['METALLIC_FACTOR'] = `float(1)`;
+    quadMat.shader.macros['ROUGHNESS_FACTOR'] = `float(0.5)`;
 
 
     // Create a renderer component
     let quadMR = new MeshRenderer(screen, new QuadMesh(), quadMat);
 
+
+    let quadtrans = quad.components.Transform;
     // Attach renderer to entity
     quad.addComponent(quadMR);
 
     // Set local translate [x, y, z]
-    // quad.components.Transform.translate[2] = -1;
+    quadtrans.translate[2] = .115;
+    quadtrans.translate[1] = 0.37;
+    quadtrans.translate[0] = 0.01;
 
     // Set euler angle x, y, z
-    // quat.fromEuler(quad.components.Transform.quaternion, -90, 0, 0);
+    // quat.fromEuler(quadtrans.quaternion, -90, 0, 0);
 
     // The original size of quad is 2x2
-    // vec3.scale(quad.components.Transform.scale, quad.components.Transform.scale, 9);
+    quadtrans.scale[1] = 144/160 + 0.03;
+    vec3.scale(quadtrans.scale, quadtrans.scale, 0.4765);
 
     // Load a gltf model
-    // let gltfroot = await Asset.loadGLTF(gltf, screen, skybox);
-    // let root = gltfroot.components.Transform;
-    // vec3.scale(root.scale, root.scale, 200);
-    // scene.appendChild(gltfroot);
+    let gltfroot = await Asset.loadGLTF(gltf, screen, skybox);
+    let root = gltfroot.components.Transform;
+    vec3.scale(root.scale, root.scale, 0.2);
+    root.translate[1] = -1;
+    scene.appendChild(gltfroot);
 
 
     setInterval(()=> {if(!isRunning) return;frame()}, 1/60 * 1000);

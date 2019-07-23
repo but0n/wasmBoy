@@ -6,10 +6,10 @@ unsigned char texture[144][160][3] = {};
 
 // RGB color in linear space
 unsigned char colorLUT[4][3] = {
-    {255, 255, 255},
-    {160, 160, 160},
-    {88, 88, 88},
-    {8, 8, 8},
+    {255 / 2, 255, 255 / 2},
+    {160 / 2, 160, 160 / 2},
+    {88 / 2, 88, 88 / 2},
+    {8 / 2, 8, 8 / 2},
 };
 
 static unsigned short ppu_clock = 0;
