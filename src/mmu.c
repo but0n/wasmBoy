@@ -97,6 +97,7 @@ unsigned char *mmu(unsigned short addr, unsigned char W, unsigned short PC) {
                     // emscripten_debugger();
                     #endif
                     IO_Reg->P1 = 0xFF;
+                    _io[0xA6] = 0;
                     // Handle SFR
                     if (W) {
                         switch (addr & 0xFF) {

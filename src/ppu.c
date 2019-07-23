@@ -7,7 +7,7 @@ unsigned char texture[144][160][3] = {};
 // RGB color in linear space
 unsigned char colorLUT[4][3] = {
     {255, 255, 255},
-    {200, 200, 200},
+    {160, 160, 160},
     {88, 88, 88},
     {8, 8, 8},
 };

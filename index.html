@@ -9,7 +9,8 @@
 </body>
     <script src="https://cdn.jsdelivr.net/npm/ashes3d/build/ashes.main.js"></script>
     <!-- <script src="build/ashes.main.js"></script> -->
-    <script src="build/wasmBoy-debug.js"></script>
+    <script src="build/wasmBoy.js"></script>
+    <!-- <script src="build/wasmBoy-debug.js"></script> -->
     <script>
         let { Asset, EntityMgr, Camera, vec3, quat, Screen, OrbitControl, Filter, Shader, Material, QuadMesh, MeshRenderer, Texture, aabb, octree, glsl } = Ashes;
 
@@ -102,7 +103,7 @@ async function main() {
 
     // Load a material
     let quadMat = await Asset.LoadMaterial('stylize'); // PBR material
-
+    quadMat.doubleSided = true;
     // Load a texture
     let floor = new Texture();
     window['floor'] = floor;
@@ -149,11 +150,20 @@ async function main() {
     // scene.appendChild(gltfroot);
 
 
-    // setInterval(()=> frame(), 1/10 * 1000);
+    setInterval(()=> {if(!isRunning) return;frame()}, 1/60 * 1000);
 
 }
 
     main();
+
+    let isRunning = false;
+    start = () => {
+        isRunning = true;
+    }
+
+    pause = () => {
+        isRunning = false;
+    }
 
     frame = () => {
         wasmBoy._frame();

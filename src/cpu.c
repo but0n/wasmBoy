@@ -1079,6 +1079,7 @@ static void call_C() {
 // Push present address onto stack.
 // Jump to address $0000 + n.
 // n = $00,$08,$10,$18,$20,$28,$30,$38
+#ifdef DEBUG_LOG
 #define RST_(addr) do {\
     wMEM(--SP)=(unsigned char)(PC>>8);\
     wMEM(--SP)=(unsigned char)PC;\
@@ -1086,6 +1087,14 @@ static void call_C() {
     printf("[%04X] RST 0x%04X\n", PC-1-2, addr);\
     ft += 16;\
 } while(0)
+#else
+#define RST_(addr) do {\
+    wMEM(--SP)=(unsigned char)(PC>>8);\
+    wMEM(--SP)=(unsigned char)PC;\
+    PC = (addr);\
+    ft += 16;\
+} while(0)
+#endif\
 
 static void rst_00h() {
     RST_(0x00);
