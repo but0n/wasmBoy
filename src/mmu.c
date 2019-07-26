@@ -29,7 +29,7 @@ unsigned char *mmu(unsigned short addr, unsigned char W, unsigned short PC) {
                 if (W) {
                     #ifdef DEBUG_LOG
                     printf("Write MBC %04X\n", addr);
-                    // emscripten_debugger();
+                    // debugger
                     #endif
                     // Write
                     return &_mbc[addr];
@@ -43,7 +43,7 @@ unsigned char *mmu(unsigned short addr, unsigned char W, unsigned short PC) {
             if (W) {
                 #ifdef DEBUG_LOG
                 printf("[%04X] Write MBC %04X\n", PC, addr);
-                // emscripten_debugger();
+                // debugger
                 #endif
                 // Write
                 return &_mbc[addr];
@@ -57,7 +57,7 @@ unsigned char *mmu(unsigned short addr, unsigned char W, unsigned short PC) {
             if (W) {
                 #ifdef DEBUG_LOG
                 printf("Write MBC\n");
-                // emscripten_debugger();
+                // debugger
                 #endif
                 // Write
                 return &_mbc[addr];
@@ -93,9 +93,9 @@ unsigned char *mmu(unsigned short addr, unsigned char W, unsigned short PC) {
                         printf("[%04X] IO %s: 0x%04X %s\n", PC, W ? "W" : "R", addr, IO_Reg->BOOT?"":"BOOT");
                     }
                     if (addr == 0xFF41) {
-                        // emscripten_debugger();
+                        // debugger
                     }
-                    // emscripten_debugger();
+                    // debugger
                     #endif
                     // Handle SFR
                     if (W) {

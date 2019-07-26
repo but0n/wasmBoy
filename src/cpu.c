@@ -566,12 +566,12 @@ static void nop() {ft = 4;}
 
 // HALT
 // Power down CPU until an interrupt occurs. Use this when ever possible to reduce energy consumption
-static unsigned char isHalt = 0;
+unsigned char isHalt = 0;
 static void halt() {isHalt=1;ft = 4;printf("HALT\n");}
 
 // STOP
 // Halt CPU & LCD display until button pressed
-static unsigned char isStop = 0;
+unsigned char isStop = 0;
 static void stop() {isStop=1;ft = 4;printf("STOP\n");}
 
 static unsigned char IME = 0;
@@ -1269,7 +1269,7 @@ void dma_handler() {
         return;
     #ifdef DEBUG_LOG
     printf(">>>> DMA Mirror [%04X]\n", IO_Reg->DMA << 8);
-    // emscripten_debugger();
+    // debugger
     #endif
     for(unsigned char i = 0; i < 0xA0; i++) {
         _oam[i] = _MEM(IO_Reg->DMA << 8 | i, 0);
@@ -1283,7 +1283,7 @@ void cpu_exe() {
     if (IME && IO_Reg->IE && IO_Reg->IF) {
         #ifdef DEBUG_LOG
         printf(">>>> Interrupt! <<<<\n");
-        // emscripten_debugger();
+        // debugger
         #endif
         unsigned char flags = IO_Reg->IE & IO_Reg->IF;
 
@@ -1291,7 +1291,7 @@ void cpu_exe() {
             IO_Reg->IF &= ~IE_VBLANK;
             RST_(0x40);
         } else if (flags & IE_STAT) {
-            emscripten_debugger();
+            debugger
             IO_Reg->IF &= ~IE_STAT;
             RST_(0x48);
         } else if (flags & IE_TIMER) {
@@ -1308,9 +1308,11 @@ void cpu_exe() {
     }
     if (!isStop) {
         op_map[MEM(PC++)]();
+        timer_step(ft);
+        dma_handler();
+    } else {
+        debugger
     }
-    timer_step(ft);
-    dma_handler();
 
     ct += ft;
     ft = 0;

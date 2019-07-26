@@ -7,4 +7,8 @@ extern void cpu_debug();
 extern void cpu_exe();
 extern void cpu_reset();
 
+extern unsigned char isHalt;
+extern unsigned char isStop;
+
+
 #endif

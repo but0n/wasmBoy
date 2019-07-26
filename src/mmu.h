@@ -3,9 +3,11 @@
 
 #ifdef __EMSCRIPTEN__
     #include <emscripten.h>
+    #define debugger emscripten_debugger();
     #define export EMSCRIPTEN_KEEPALIVE
 #else
     #define export
+    #define debugger
 #endif
 
 

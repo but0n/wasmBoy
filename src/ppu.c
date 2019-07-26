@@ -1,5 +1,6 @@
 #include "ppu.h"
 #include "mmu.h"
+#include "cpu.h"
 
 unsigned char texture[144][160][3] = {};
 
@@ -37,6 +38,9 @@ void ppu_reset() {
 // 0xFF41 STAT > NOTUSE : INTR_LYC : INTR_M2 : INTR_M1 : INTR_M0 : LYC_STAT : LCD_MODE<1:0>
 
 void ppu_step(unsigned short clock) {
+
+    if (isStop)
+        return;
 
     ppu_clock += clock;
 
