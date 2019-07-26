@@ -1236,7 +1236,7 @@ static void (*op_map[])() = {
     // 2x
     jr_NZ, ld_HL_d16, ld_HLI_A, inc_HL, inc_H, dec_H, ld_H_d8, daa, jr_Z, add_HL_HL, ld_A_HLI, dec_HL, inc_L, dec_L, ld_L_d8, cpl,
     //3x
-    jr_NC, ld_SP_d16, ld_HLD_A, inc_SP, inc_HL, dec_HL, ld_HL_d8, scf, jr_C, add_HL_SP, ld_A_HLD, dec_SP, inc_A, dec_A, ld_A_d8, ccf,
+    jr_NC, ld_SP_d16, ld_HLD_A, inc_SP, inc_HL, dec_rHL, ld_HL_d8, scf, jr_C, add_HL_SP, ld_A_HLD, dec_SP, inc_A, dec_A, ld_A_d8, ccf,
     // 4x
     ld_B_B, ld_B_C, ld_B_D, ld_B_E, ld_B_H, ld_B_L, ld_B_HL, ld_B_A, ld_C_B, ld_C_C, ld_C_D, ld_C_E, ld_C_H, ld_C_L, ld_C_HL, ld_C_A,
     // 5x
@@ -1279,7 +1279,6 @@ void dma_handler() {
 
 
 void cpu_exe() {
-
     // Interrupt handler
     if (IME && IO_Reg->IE && IO_Reg->IF) {
         #ifdef DEBUG_LOG
@@ -1302,12 +1301,14 @@ void cpu_exe() {
             IO_Reg->IF &= ~IE_SERIAL;
             RST_(0x58);
         } else if (flags & IE_JOYPAD) {
+            isStop = 0;
             IO_Reg->IF &= ~IE_JOYPAD;
             RST_(0x60);
         }
     }
-
-    op_map[MEM(PC++)]();
+    if (!isStop) {
+        op_map[MEM(PC++)]();
+    }
     timer_step(ft);
     dma_handler();
 
