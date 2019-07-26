@@ -529,7 +529,22 @@ static void swap_H() {swap=H&0xF0;H=H<<4|swap>>4;OR_FLAG(H);ft = 8;}
 static void swap_L() {swap=L&0xF0;L=L<<4|swap>>4;OR_FLAG(L);ft = 8;}
 static void swap_HL() {swap=MEM(HL)&0xF0;wMEM(HL)=MEM(HL)<<4|swap>>4;OR_FLAG(MEM(HL));ft = 16;}
 
-// DAA TODO:
+// DAA
+// Decimal adjust register A. Converting decimal number to packed BCD (Binary Coded Decimal)
+// Flags affected: Z - 0 C
+static void daa() {
+    if ((F & 0x20) || ((A & 0x0F) > 9)) {
+        A += 6;
+        F &= ~(1<<F_C_BIT);
+    }
+    if ((F & 0x20) || (A > 0x99)) {
+        A += 0x60;
+        F |= 1<<F_C_BIT;
+    }
+    F &= ~(1<<F_H_BIT);
+    Flag_zero(A);
+    ft = 4;
+}
 
 // CPL
 // Complement A register. (Flip all bits.)
@@ -1218,7 +1233,7 @@ static void (*op_map[])() = {
     // 1x
     stop, ld_DE_d16, ld_DE_A, inc_DE, inc_D, dec_D, ld_D_d8, rla, jr_d8, add_HL_DE, ld_A_DE, dec_DE, inc_E, dec_E, ld_E_d8, rra,
     // 2x
-    jr_NZ, ld_HL_d16, ld_HLI_A, inc_HL, inc_H, dec_H, ld_H_d8, XX, jr_Z, add_HL_HL, ld_A_HLI, dec_HL, inc_L, dec_L, ld_L_d8, cpl,
+    jr_NZ, ld_HL_d16, ld_HLI_A, inc_HL, inc_H, dec_H, ld_H_d8, daa, jr_Z, add_HL_HL, ld_A_HLI, dec_HL, inc_L, dec_L, ld_L_d8, cpl,
     //3x
     jr_NC, ld_SP_d16, ld_HLD_A, inc_SP, inc_HL, dec_HL, ld_HL_d8, scf, jr_C, add_HL_SP, ld_A_HLD, dec_SP, inc_A, dec_A, ld_A_d8, ccf,
     // 4x
