@@ -142,13 +142,16 @@ async function main() {
     // Attach texture to material we created
     Material.setTexture(quadMat, 'baseColorTexture', floor);
     quadMat.shader.macros['HAS_BASECOLOR_MAP'] = '';
+    // Material.setTexture(quadMat, 'metallicRoughnessTexture', floor);
+    // quadMat.shader.macros['HAS_METALLIC_ROUGHNESS_MAP'] = '';
     Material.setTexture(quadMat, 'env', skybox);
     quadMat.shader.macros['HAS_ENV_MAP'] = '';
     const brdfurl = 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Viewer/master/assets/images/brdfLUT.png';
     let brdfLUT = await Asset.loadTexture(brdfurl, { minFilter: WebGL2RenderingContext.LINEAR });
     Material.setTexture(quadMat, 'brdfLUT', Texture.clone(brdfLUT));
+    quadMat.shader.macros['BASECOLOR_FACTOR'] = `float(0.2)`;
     quadMat.shader.macros['METALLIC_FACTOR'] = `float(1)`;
-    quadMat.shader.macros['ROUGHNESS_FACTOR'] = `float(0.5)`;
+    quadMat.shader.macros['ROUGHNESS_FACTOR'] = `float(0.05)`;
 
 
     // Create a renderer component
