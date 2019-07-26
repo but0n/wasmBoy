@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include "mmu.h"
+#include "timer.h"
 #include <stdio.h>
 
 #define REG_AMOUNT 6
@@ -1279,8 +1280,6 @@ void dma_handler() {
 
 void cpu_exe() {
 
-    op_map[MEM(PC++)]();
-    dma_handler();
     // Interrupt handler
     if (IME && IO_Reg->IE && IO_Reg->IF) {
         #ifdef DEBUG_LOG
@@ -1297,16 +1296,20 @@ void cpu_exe() {
             IO_Reg->IF &= ~IE_STAT;
             RST_(0x48);
         } else if (flags & IE_TIMER) {
-            // IO_Reg->IF &= ~IE_TIMER;
-            // RST_(0x50);
+            IO_Reg->IF &= ~IE_TIMER;
+            RST_(0x50);
         } else if (flags & IE_SERIAL) {
-            // IO_Reg->IF &= ~IE_SERIAL;
-            // RST_(0x58);
+            IO_Reg->IF &= ~IE_SERIAL;
+            RST_(0x58);
         } else if (flags & IE_JOYPAD) {
             IO_Reg->IF &= ~IE_JOYPAD;
             RST_(0x60);
         }
     }
+
+    op_map[MEM(PC++)]();
+    timer_step(ft);
+    dma_handler();
 
     ct += ft;
     ft = 0;

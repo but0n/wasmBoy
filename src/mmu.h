@@ -139,6 +139,9 @@ typedef struct {
 #define IE_SERIAL           ((unsigned char)0x08)     /*!< Serial Transfer Completion */
 #define IE_JOYPAD           ((unsigned char)0x10)     /*!< Joypad */
 
+/*******************  Bit definition for TAC register  ********************/
+#define TAC_CLK             ((unsigned char)0x03)     /*!< Input Clock Select */
+#define TAC_EN              ((unsigned char)0x04)     /*!< Timer Enable */
 
 typedef struct {
     unsigned char RST_00[8];
