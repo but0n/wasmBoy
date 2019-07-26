@@ -1296,19 +1296,16 @@ void cpu_exe() {
             emscripten_debugger();
             IO_Reg->IF &= ~IE_STAT;
             RST_(0x48);
+        } else if (flags & IE_TIMER) {
+            // IO_Reg->IF &= ~IE_TIMER;
+            // RST_(0x50);
+        } else if (flags & IE_SERIAL) {
+            // IO_Reg->IF &= ~IE_SERIAL;
+            // RST_(0x58);
+        } else if (flags & IE_JOYPAD) {
+            IO_Reg->IF &= ~IE_JOYPAD;
+            RST_(0x60);
         }
-        // if (flags & IE_TIMER) {
-        //     IO_Reg->IF &= ~IE_TIMER;
-        //     RST_(0x50);
-        // }
-        // if (flags & IE_SERIAL) {
-        //     IO_Reg->IF &= ~IE_SERIAL;
-        //     RST_(0x58);
-        // }
-        // if (flags & IE_JOYPAD) {
-        //     IO_Reg->IF &= ~IE_JOYPAD;
-        //     RST_(0x60);
-        // }
     }
 
     ct += ft;
