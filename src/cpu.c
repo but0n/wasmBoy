@@ -117,6 +117,8 @@ unsigned int ct;
 #define _a8w    (wMEM(0xFF00|_d8))  // Write
 #define _a16w   (wMEM(_d16))        // Write
 
+static unsigned char d8_cache;
+
 static void XX() {
     printf("Unimplemented instruction at $%04X\n", PC-1);
     printf("Code %02X\n", MEM(PC-1));
@@ -314,13 +316,16 @@ static void adc_A_L() {ADD_FLAG((sum=F_C+A+L));A=sum;ft = 4;}
 static void adc_A_HL() {ADD_FLAG((sum=F_C+A+MEM(HL)));A=sum;ft = 8;}
 static void adc_A_d8() {ADD_FLAG((sum=F_C+A+_d8));A=(unsigned char)sum;ft = 8;}
 
-#define SUB_FLAG() do {\
+#define SUB_FLAG(n) do {\
     F = 0;\
     Flag_subtract();\
     Flag_zero(sub);\
     if(sub<0) {\
         F |= 1<<F_C_BIT;\
         sub = ~sub + 1;\
+    }\
+    if((n) ^ sub ^ A) {\
+        F |= 1<<F_H_BIT;\
     }\
 } while(0)
 
@@ -333,27 +338,27 @@ static int sub;
 //  N - Set.
 //  H - Set if no borrow from bit 4.
 //  C - Set if no borrow.
-static void sub_A() {sub=A-A;SUB_FLAG();A=sub;ft = 4;}
-static void sub_B() {sub=A-B;SUB_FLAG();A=sub;ft = 4;}
-static void sub_C() {sub=A-C;SUB_FLAG();A=sub;ft = 4;}
-static void sub_D() {sub=A-D;SUB_FLAG();A=sub;ft = 4;}
-static void sub_E() {sub=A-E;SUB_FLAG();A=sub;ft = 4;}
-static void sub_H() {sub=A-H;SUB_FLAG();A=sub;ft = 4;}
-static void sub_L() {sub=A-L;SUB_FLAG();A=sub;ft = 4;}
-static void sub_HL() {sub=A-MEM(HL);SUB_FLAG();A=sub;ft = 8;}
-static void sub_d8() {sub=A-_d8;SUB_FLAG();A=(unsigned char)sub;ft = 8;}
+static void sub_A() {sub=A-A;SUB_FLAG(A);A=sub;ft = 4;}
+static void sub_B() {sub=A-B;SUB_FLAG(B);A=sub;ft = 4;}
+static void sub_C() {sub=A-C;SUB_FLAG(C);A=sub;ft = 4;}
+static void sub_D() {sub=A-D;SUB_FLAG(D);A=sub;ft = 4;}
+static void sub_E() {sub=A-E;SUB_FLAG(E);A=sub;ft = 4;}
+static void sub_H() {sub=A-H;SUB_FLAG(H);A=sub;ft = 4;}
+static void sub_L() {sub=A-L;SUB_FLAG(L);A=sub;ft = 4;}
+static void sub_HL() {sub=A-MEM(HL);SUB_FLAG(MEM(HL));A=sub;ft = 8;}
+static void sub_d8() {d8_cache=_d8;sub=A-d8_cache;SUB_FLAG(d8_cache);A=(unsigned char)sub;ft = 8;}
 
 // SBC A,n
 // Subtract n + Carry flag from A; (n = A,B,C,D,E,H,L,(HL),#)
-static void sbc_A_A() {sub=A-F_C-A;SUB_FLAG();A=sub;ft = 4;}
-static void sbc_A_B() {sub=A-F_C-B;SUB_FLAG();A=sub;ft = 4;}
-static void sbc_A_C() {sub=A-F_C-C;SUB_FLAG();A=sub;ft = 4;}
-static void sbc_A_D() {sub=A-F_C-D;SUB_FLAG();A=sub;ft = 4;}
-static void sbc_A_E() {sub=A-F_C-E;SUB_FLAG();A=sub;ft = 4;}
-static void sbc_A_H() {sub=A-F_C-H;SUB_FLAG();A=sub;ft = 4;}
-static void sbc_A_L() {sub=A-F_C-L;SUB_FLAG();A=sub;ft = 4;}
-static void sbc_A_HL() {sub=A-F_C-MEM(HL);SUB_FLAG();A=sub;ft = 8;}
-static void sbc_A_d8() {sub=A-F_C-_d8;SUB_FLAG();A=(unsigned char)sub;ft = 8;}
+static void sbc_A_A() {sub=A-F_C-A;SUB_FLAG(A);A=sub;ft = 4;}
+static void sbc_A_B() {sub=A-F_C-B;SUB_FLAG(B);A=sub;ft = 4;}
+static void sbc_A_C() {sub=A-F_C-C;SUB_FLAG(C);A=sub;ft = 4;}
+static void sbc_A_D() {sub=A-F_C-D;SUB_FLAG(D);A=sub;ft = 4;}
+static void sbc_A_E() {sub=A-F_C-E;SUB_FLAG(E);A=sub;ft = 4;}
+static void sbc_A_H() {sub=A-F_C-H;SUB_FLAG(H);A=sub;ft = 4;}
+static void sbc_A_L() {sub=A-F_C-L;SUB_FLAG(L);A=sub;ft = 4;}
+static void sbc_A_HL() {sub=A-F_C-MEM(HL);SUB_FLAG(MEM(HL));A=sub;ft = 8;}
+static void sbc_A_d8() {d8_cache=_d8;sub=A-F_C-d8_cache;SUB_FLAG(d8_cache);A=(unsigned char)sub;ft = 8;}
 
 // AND n
 // Logically AND n with A, result in A; (n = A,B,C,D,E,H,L,(HL),#)
@@ -423,15 +428,15 @@ static void xor_d8() {OR_FLAG((A^=_d8));ft = 8;}
 //  N - Set.
 //  H - Set if no borrow from bit 4.
 //  C - Set for no borrow. (Set if A < n.)
-static void cp_A() {sub=A-A;SUB_FLAG();ft = 4;}
-static void cp_B() {sub=A-B;SUB_FLAG();ft = 4;}
-static void cp_C() {sub=A-C;SUB_FLAG();ft = 4;}
-static void cp_D() {sub=A-D;SUB_FLAG();ft = 4;}
-static void cp_E() {sub=A-E;SUB_FLAG();ft = 4;}
-static void cp_H() {sub=A-H;SUB_FLAG();ft = 4;}
-static void cp_L() {sub=A-L;SUB_FLAG();ft = 4;}
-static void cp_HL() {sub=A-MEM(HL);SUB_FLAG();ft = 8;}
-static void cp_d8() {sub=A-_d8;SUB_FLAG();ft = 8;}
+static void cp_A() {sub=A-A;SUB_FLAG(A);ft = 4;}
+static void cp_B() {sub=A-B;SUB_FLAG(B);ft = 4;}
+static void cp_C() {sub=A-C;SUB_FLAG(C);ft = 4;}
+static void cp_D() {sub=A-D;SUB_FLAG(D);ft = 4;}
+static void cp_E() {sub=A-E;SUB_FLAG(E);ft = 4;}
+static void cp_H() {sub=A-H;SUB_FLAG(H);ft = 4;}
+static void cp_L() {sub=A-L;SUB_FLAG(L);ft = 4;}
+static void cp_HL() {sub=A-MEM(HL);SUB_FLAG(MEM(HL));ft = 8;}
+static void cp_d8() {d8_cache=_d8;sub=A-d8_cache;SUB_FLAG(d8_cache);ft = 8;}
 
 // INC n
 // Increment register n; (n = A,B,C,D,E,H,L,(HL))
