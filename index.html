@@ -184,6 +184,38 @@ async function main() {
 
     setInterval(()=> {if(!isRunning) return;frame()}, 1/60 * 1000);
 
+    // joypad
+    btn_handler = (e, value) => {
+        switch(e.key) {
+            case ' ':
+                wasmBoy._btn_select(value);
+                break;
+            case 'Enter':
+                wasmBoy._btn_start(value);
+                break;
+            case 'z':
+                wasmBoy._btn_A(value);
+                break;
+            case 'x':
+                wasmBoy._btn_B(value);
+                break;
+            case 'ArrowUp':
+                wasmBoy._dir_up(value);
+                break;
+            case 'ArrowDown':
+                wasmBoy._dir_down(value);
+                break;
+            case 'ArrowLeft':
+                wasmBoy._dir_left(value);
+                break;
+            case 'ArrowRight':
+                wasmBoy._dir_right(value);
+                break;
+        }
+    }
+    document.addEventListener('keydown', (e) => btn_handler(e,1))
+    document.addEventListener('keyup', (e) => btn_handler(e,0))
+
 }
 
     main();

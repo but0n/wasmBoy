@@ -1,5 +1,6 @@
 #include "mmu.h"
 #include "boot.h"
+#include "joypad.h"
 
 #ifdef DEBUG_LOG
 #include <stdio.h>
@@ -96,12 +97,22 @@ unsigned char *mmu(unsigned short addr, unsigned char W, unsigned short PC) {
                     }
                     // emscripten_debugger();
                     #endif
-                    IO_Reg->P1 = 0xFF;
                     // Handle SFR
                     if (W) {
                         switch (addr & 0xFF) {
                             case 0x46:
                                 dma_trigger = 1;
+                                break;
+                        }
+                    } else {
+                        switch (addr & 0xFF) {
+                            case 0x00:
+                                IO_Reg->P1 |= 0x0F;
+                                if (IO_Reg->P1 & P1_OUT_P14_DIR) {
+                                    IO_Reg->P1 &= joypad_dir;
+                                } else {
+                                    IO_Reg->P1 &= joypad_btn;
+                                }
                                 break;
                         }
                     }

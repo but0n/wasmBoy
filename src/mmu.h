@@ -99,6 +99,15 @@ typedef struct {
 } REG_TypeDef;
 
 
+/*******************  Bit definition for P1 register  ********************/
+#define P1_IN_P10_RA        ((unsigned char)0x01)     /*!< Right / A */
+#define P1_IN_P11_LB        ((unsigned char)0x02)     /*!< Left / B */
+#define P1_IN_P12_USL       ((unsigned char)0x04)     /*!< Up / Select */
+#define P1_IN_P13_DST       ((unsigned char)0x08)     /*!< Down / Start */
+#define P1_OUT_P14_DIR      ((unsigned char)0x10)     /*!< Direction Joy Pad */
+#define P1_OUT_P15_BTN      ((unsigned char)0x20)     /*!< A, B, Select, Start */
+
+
 /*******************  Bit definition for STAT register  ********************/
 #define STAT_LCD_MODE       ((unsigned char)0x03)     /*!< Mode[1:0] Flag */
 #define STAT_LYC_STAT       ((unsigned char)0x04)     /*!< Coincidence Flag */
