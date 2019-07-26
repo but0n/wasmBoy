@@ -142,34 +142,49 @@ void drawtile(unsigned short tile) {
 }
 
 void scanline() {
-    unsigned short bgmap_offs = ((IO_Reg->LCDC & LCDC_BG_MAP) ? 0x9C00 : 0x9800) - VRAM_BASE;
 
     unsigned char liney = (IO_Reg->LY + IO_Reg->SCY) & 0xFF;
-    unsigned char bgmapx = IO_Reg->SCX >> 3;
-    unsigned char bgmapy = liney >> 3;
-
 
     // Decode tile data UV
     unsigned char u_start = IO_Reg->SCX & 7;
     unsigned char v = (IO_Reg->LY + IO_Reg->SCY) & 7;
 
+    // BG & Window Tile Data Select
     unsigned short tile_base = ((IO_Reg->LCDC & LCDC_TILE_SEL) ? 0x8000 : 0x8800) - VRAM_BASE;
     unsigned char (*tile_data)[8][2] = (unsigned char (*)[8][2])&_vram[tile_base]; // 256 x 8 x 2 Bytes
 
+    // BG Tile Map Display Select
+    unsigned short bgmap_offs = ((IO_Reg->LCDC & LCDC_BG_MAP) ? 0x9C00 : 0x9800) - VRAM_BASE;
     unsigned char (*bgmap)[32] = (unsigned char (*)[32])&_vram[bgmap_offs];
+    unsigned char bgmapx = IO_Reg->SCX >> 3;
+    unsigned char bgmapy = liney >> 3 & 0x1F;
+
+    // Window Tile Map Display Select
+    unsigned short winmap_offs = ((IO_Reg->LCDC & LCDC_WIN_MAP) ? 0x9C00 : 0x9800) - VRAM_BASE;
+    unsigned char (*winmap)[32] = (unsigned char (*)[32])&_vram[winmap_offs];
+    unsigned char winmapx = IO_Reg->WX >> 3;
+    unsigned char winmapy = (IO_Reg->LY - IO_Reg->WY) >> 3 & 0x1F;
+    unsigned char wintiley = (IO_Reg->LY - IO_Reg->WY) & 7;
 
     unsigned char pixelCounter = 0;
     for(unsigned char i = 0; i < SCREEN_TILES+1; i++) {
-        unsigned char ID = bgmap[bgmapy & 0x1F][(bgmapx + i) & 0x1F]; // 256 tiles total, mask as 0xFF
+        unsigned char ID = bgmap[bgmapy][(bgmapx + i) & 0x1F]; // 256 tiles total, mask as 0xFF
+        unsigned char win_tile_ID = winmap[winmapy][(winmapx + i) & 0x1F];
         unsigned char *tile = tile_data[ID][v];
+        unsigned char *win_tile = tile_data[win_tile_ID][v];
         for(unsigned char p = 0; p < 8; p++) {
-            if(u_start) {
-                u_start--;
-                continue;
-            }
             // For each pixel (2 bits)
-
-            unsigned char color_bit = ((tile[0] >> (7 - p) << 1) & 2) | ((tile[1] >> (7 - p)) & 1);
+            unsigned char color_bit;
+            // Draw Window
+            if ((IO_Reg->LCDC & LCDC_WIN_EN) && (IO_Reg->LY >= IO_Reg->WY) && (pixelCounter >= IO_Reg->WX)) {
+                color_bit = ((win_tile[0] >> (7 - p) << 1) & 2) | ((win_tile[1] >> (7 - p)) & 1);
+            } else {
+                if(u_start) {
+                    u_start--;
+                    continue;
+                }
+                color_bit = ((tile[0] >> (7 - p) << 1) & 2) | ((tile[1] >> (7 - p)) & 1);
+            }
             unsigned char *color = colorLUT[(IO_Reg->BGP >> (color_bit << 1)) & 3];
             // Write color
             texture[liney][pixelCounter][0] = color[0];

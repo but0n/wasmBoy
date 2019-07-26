@@ -175,11 +175,11 @@ async function main() {
     vec3.scale(quadtrans.scale, quadtrans.scale, 0.4765);
 
     // Load a gltf model
-    let gltfroot = await Asset.loadGLTF(gltf, screen, skybox);
-    let root = gltfroot.components.Transform;
-    vec3.scale(root.scale, root.scale, 0.2);
-    root.translate[1] = -1;
-    scene.appendChild(gltfroot);
+    // let gltfroot = await Asset.loadGLTF(gltf, screen, skybox);
+    // let root = gltfroot.components.Transform;
+    // vec3.scale(root.scale, root.scale, 0.2);
+    // root.translate[1] = -1;
+    // scene.appendChild(gltfroot);
 
 
     setInterval(()=> {if(!isRunning) return;frame()}, 1/60 * 1000);
