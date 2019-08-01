@@ -1291,7 +1291,7 @@ void cpu_exe() {
             IO_Reg->IF &= ~IE_VBLANK;
             RST_(0x40);
         } else if (flags & IE_STAT) {
-            debugger
+            // debugger
             IO_Reg->IF &= ~IE_STAT;
             RST_(0x48);
         } else if (flags & IE_TIMER) {
@@ -1301,18 +1301,25 @@ void cpu_exe() {
             IO_Reg->IF &= ~IE_SERIAL;
             RST_(0x58);
         } else if (flags & IE_JOYPAD) {
-            isStop = 0;
+            // debugger
             IO_Reg->IF &= ~IE_JOYPAD;
             RST_(0x60);
         }
+
+        // Wake up
+        if (isStop && (IO_Reg->IF & IE_JOYPAD)) {
+            isStop = 0;
+        }
     }
+
     if (!isStop) {
         op_map[MEM(PC++)]();
         timer_step(ft);
-        dma_handler();
     } else {
-        debugger
+        nop();
     }
+
+    dma_handler();
 
     ct += ft;
     ft = 0;
