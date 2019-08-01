@@ -1236,7 +1236,7 @@ static void (*op_map[])() = {
     // 2x
     jr_NZ, ld_HL_d16, ld_HLI_A, inc_HL, inc_H, dec_H, ld_H_d8, daa, jr_Z, add_HL_HL, ld_A_HLI, dec_HL, inc_L, dec_L, ld_L_d8, cpl,
     //3x
-    jr_NC, ld_SP_d16, ld_HLD_A, inc_SP, inc_HL, dec_rHL, ld_HL_d8, scf, jr_C, add_HL_SP, ld_A_HLD, dec_SP, inc_A, dec_A, ld_A_d8, ccf,
+    jr_NC, ld_SP_d16, ld_HLD_A, inc_SP, inc_rHL, dec_rHL, ld_HL_d8, scf, jr_C, add_HL_SP, ld_A_HLD, dec_SP, inc_A, dec_A, ld_A_d8, ccf,
     // 4x
     ld_B_B, ld_B_C, ld_B_D, ld_B_E, ld_B_H, ld_B_L, ld_B_HL, ld_B_A, ld_C_B, ld_C_C, ld_C_D, ld_C_E, ld_C_H, ld_C_L, ld_C_HL, ld_C_A,
     // 5x
@@ -1246,7 +1246,7 @@ static void (*op_map[])() = {
     // 7x
     ld_HL_B, ld_HL_C, ld_HL_D, ld_HL_E, ld_HL_H, ld_HL_L, halt, ld_HL_A, ld_A_B, ld_A_C, ld_A_D, ld_A_E, ld_A_H, ld_A_L, ld_A_HL, ld_A_A,
     // 8x
-    add_A_B, add_A_C, add_A_D, add_A_E, add_A_H, add_A_L, adc_A_HL, add_A_A, adc_A_B, adc_A_C, adc_A_D, adc_A_E, adc_A_H, adc_A_L, adc_A_HL, adc_A_A,
+    add_A_B, add_A_C, add_A_D, add_A_E, add_A_H, add_A_L, add_A_HL, add_A_A, adc_A_B, adc_A_C, adc_A_D, adc_A_E, adc_A_H, adc_A_L, adc_A_HL, adc_A_A,
     // 9x
     sub_B, sub_C, sub_D, sub_E, sub_H, sub_L, sub_HL, sub_A, sbc_A_B, sbc_A_C, sbc_A_D, sbc_A_E, sbc_A_H, sbc_A_L, sbc_A_HL, sbc_A_A,
     // Ax
